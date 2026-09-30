@@ -2,7 +2,9 @@ name: Integrate v10 email verification
 on:
   push:
     branches: [feature/email-verification]
-    paths: [.github/workflows/integrate-email-v10.yml]
+    paths:
+      - .github/workflows/integrate-email-v10.yml
+      - scripts/integrate-email-v10.js
 permissions:
   contents: write
 jobs:
