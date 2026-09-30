@@ -64,7 +64,7 @@ module.exports = function registerEmailRoutes(app, authLimiter, createReferralCo
       try {
         await session.withTransaction(async () => {
           const claimed = await PendingRegistration.findOneAndDelete({ _id: pending._id,
-            codeHash: pending.codeHash, attempts: { $lt: 5 }, expiresAt: { $gt: new Date() } }).session(session);
+            codeHash: pending.codeHash, attempts: { $lt: 5 }, expiresAt: { $gt: new Date() } }).select('+passwordHash').session(session);
           if (!claimed) throw new Error('Code already used');
           const referrer = claimed.referralCode ? await User.findOne({ referralCode: claimed.referralCode }).session(session) : null;
           const safeName = claimed.username || email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'player';
