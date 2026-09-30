@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naira Luck — Crash | Auth build v5</title><script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--bg:#0c111b;--panel:#151e2c;--panel2:#1b2738;--line:#2b3a50;--text:#edf4ff;--muted:#91a2ba;--green:#35e39a;--red:#ff6174;--gold:#ffd166;--blue:#6ea8fe}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17263a 0,#0c111b 55%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}button,input{font:inherit}button{border:0;border-radius:10px;padding:12px 16px;font-weight:750;cursor:pointer;transition:.18s}button:disabled{opacity:.5;cursor:not-allowed}.shell{width:min(1160px,100%);margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-size:21px;font-weight:850;letter-spacing:.2px}.brand span{color:var(--green)}.top-right{display:flex;align-items:center;gap:12px}.pill{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 12px;color:var(--muted)}.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.85fr);gap:18px}.panel{background:linear-gradient(160deg,rgba(27,39,56,.98),rgba(19,28,41,.98));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 18px 45px #0003}.panel h2,.panel h3{margin:0 0 14px}.muted{color:var(--muted)}.auth-wrap{max-width:480px;margin:8vh auto}.auth-wrap .panel{padding:28px}.auth-tabs{display:flex;gap:8px;margin:16px 0}.auth-tabs button{flex:1;background:var(--panel2);color:var(--muted)}.auth-tabs button.active{background:var(--green);color:#062116}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:13px;color:var(--muted)}input{width:100%;border:1px solid var(--line);border-radius:9px;background:#0d1521;color:var(--text);padding:12px;outline:none}input:focus{border-color:var(--blue)}.primary{background:var(--green);color:#062116;width:100%}.alert{min-height:22px;margin-top:10px;color:var(--red)}.small{font-size:12px;color:var(--muted)}.game-stage{height:290px;border-radius:14px;border:1px solid #34455f;background:radial-gradient(ellipse at 50% 110%,#24445a,#101827 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:12px 0 18px;overflow:hidden}.status{font-size:15px;color:var(--muted)}.multiplier{font-size:clamp(58px,9vw,88px);font-weight:900;letter-spacing:-4px}.multiplier.crashed{color:var(--red);animation:shake .2s infinite}.bet-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}.bet{background:var(--green);color:#062116;width:100%}.cashout{background:var(--red);color:white;width:100%}.disabled-look{background:#273448;color:#9babc1}.feed{height:115px;overflow:auto;background:#0d1521;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}.stack{display:grid;gap:16px}.balance{font-size:27px;font-weight:850;color:var(--green)}.card-title{display:flex;justify-content:space-between;align-items:center;gap:12px}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{padding:12px;border-radius:11px;background:#0e1724;border:1px solid #26364b}.stat strong{display:block;font-size:19px;margin-top:2px}.code-row{display:flex;gap:8px}.code-row input{min-width:0}.secondary{background:#26354a;color:var(--text)}.daily{background:var(--gold);color:#291d00;width:100%}.daily.done{background:#26354a;color:var(--muted)}.transactions{max-height:190px;overflow:auto}.tx{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #28374b;font-size:13px}.tx:last-child{border:0}.tx-amount{white-space:nowrap;color:var(--green)}.notice{padding:10px 12px;border-left:3px solid var(--gold);background:#292719;color:#dfd4ad;border-radius:5px;font-size:12px}.hidden{display:none!important}.creator{color:var(--gold)}@keyframes shake{0%,100%{transform:translateX(0)}50%{transform:translateX(-2px)}}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.shell{padding:15px}.top{align-items:flex-start}.top-right{flex-wrap:wrap;justify-content:flex-end}.game-stage{height:250px}}
+@media(max-width:520px){.top{display:grid}.top-right{justify-content:space-between}.panel{padding:16px}.bet-form{grid-template-columns:1fr}.brand{font-size:19px}.game-stage{height:220px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="brand">NAIRA <span>LUCK</span></div><div class="top-right hidden" id="userBar"><span class="pill" id="whoami"></span><span class="pill">Баланс <b id="topBalance">0.00</b> ₦</span><button class="ghost" id="logoutBtn">Выйти</button></div></header>
+  <section id="authScreen" class="auth-wrap"><div class="panel"><h2>Ваш аккаунт</h2><p class="muted">Войдите или создайте аккаунт, чтобы открыть игру и личный кабинет.</p><div class="auth-tabs"><button id="loginTab" class="active">Вход</button><button id="registerTab">Регистрация</button></div><form id="authForm"><div class="field"><label>Email</label><input id="emailInput" type="email" autocomplete="email" required></div><div class="field"><label>Пароль</label><input id="passwordInput" type="password" autocomplete="current-password" minlength="10" required></div><div class="field hidden" id="refField"><label>Реферальный код (необязательно)</label><input id="refInput" autocomplete="off" placeholder="Код друга или автора"></div><button class="primary" id="authSubmit">Войти</button><div class="alert" id="authMessage" role="status"></div></form><div class="small">Для демонстрационного MVP используются тестовые балансы в ₦. Не вносите реальные средства.</div></div></section>
+  <main id="appScreen" class="layout hidden">
+    <section class="panel"><div class="card-title"><h2>Crash <span class="small">LIVE</span></h2><span id="socketState" class="pill">Подключение…</span></div><div class="game-stage"><div id="gameStatus" class="status">Ожидаем подключение</div><div id="multiplier" class="multiplier">1.00x</div></div><div class="bet-form"><div class="field"><label for="betAmount">Ставка (₦)</label><input id="betAmount" type="number" min="1" step="1" value="100"></div><button id="actionBtn" class="bet" disabled>Подключение…</button></div><h3 style="margin-top:22px">События раунда</h3><div id="feed" class="feed" aria-live="polite"></div></section>
+    <aside class="stack">
+      <section class="panel"><div class="card-title"><h3>Личный кабинет</h3><span id="roleTag" class="small"></span></div><div class="balance" id="cabBalance">0.00 ₦</div><div class="stat-grid" style="margin-top:14px"><div class="stat"><span class="small">Ставок</span><strong id="totalBets">0</strong></div><div class="stat"><span class="small">Оборот</span><strong id="totalWagered">0 ₦</strong></div><div class="stat"><span class="small">Выводов</span><strong id="totalWins">0</strong></div><div class="stat"><span class="small">Получено в игре</span><strong id="totalWon">0 ₦</strong></div></div></section>
+      <section class="panel"><h3>Ежедневный бонус</h3><p class="muted small">Забирайте бонус раз в календарный день по времени Нигерии. Серия растёт до 7-го дня.</p><button id="dailyBtn" class="daily">Забрать бонус</button><div id="dailyMessage" class="small" style="margin-top:9px"></div></section>
+      <section class="panel"><h3>Пригласить друзей</h3><p class="muted small">Ваш код и ссылка. Бонус пригласившему начисляется после первого подтверждённого депозита приглашённого.</p><div class="code-row"><input id="refCodeDisplay" readonly aria-label="Реферальный код"><button id="copyCodeBtn" class="secondary">Копировать</button></div><div class="code-row" style="margin-top:8px"><input id="refLinkDisplay" readonly aria-label="Реферальная ссылка"><button id="copyLinkBtn" class="secondary">Копировать</button></div><div class="stat-grid" style="margin-top:10px"><div class="stat"><span class="small">Приглашено</span><strong id="referralsCount">0</strong></div><div class="stat"><span class="small">Бонусы</span><strong id="refEarnings">0 ₦</strong></div></div><div class="notice" style="margin-top:12px">MVP: 100 ₦ пригласившему и 50 ₦ новому игроку после первого подтверждённого депозита. Процентные 5%/15% пока не начисляются автоматически — нужно утвердить базу расчёта и условия creator-программы.</div><div id="creatorBox" style="margin-top:12px"><button id="creatorApply" class="secondary" style="width:100%">Подать заявку контент-мейкера</button><div id="creatorMessage" class="small" style="margin-top:7px"></div></div></section>
+      <section class="panel"><div class="card-title"><h3>Промокод</h3></div><div class="code-row"><input id="promoInput" placeholder="Например, NAIRA500"><button id="promoBtn" class="secondary">Применить</button></div><div id="promoMessage" class="small" style="margin-top:8px"></div></section>
+      <section class="panel"><h3>Последние операции</h3><div id="transactions" class="transactions"><span class="small">Загрузка…</span></div></section>
+    </aside>
+  </main>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let authMode = 'login';
+  let currentUser = null;
+  let hasBetInRound = false;
+  let gameState = 'waiting';
+  let countdown = null;
+  let sessionToken = '';
+  try { sessionToken = sessionStorage.getItem('sessionToken') || ''; } catch (_) {}
+  const socket = io({ autoConnect: false, auth: { token: sessionToken } });
+  function saveSessionToken(token) {
+    sessionToken = token || '';
+    socket.auth = { token: sessionToken };
+    try { if (sessionToken) sessionStorage.setItem('sessionToken', sessionToken); else sessionStorage.removeItem('sessionToken'); } catch (_) {}
+  }
+  const format = n => Number(n || 0).toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const queryRef = new URLSearchParams(location.search).get('ref');
+  if (queryRef) { $('refInput').value = queryRef.toUpperCase(); $('registerTab').click(); }
+  function setMode(mode) {
+    authMode = mode;
+    $('loginTab').classList.toggle('active', mode === 'login');
+    $('registerTab').classList.toggle('active', mode === 'register');
+    $('refField').classList.toggle('hidden', mode !== 'register');
+    $('passwordInput').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+    $('authSubmit').textContent = mode === 'login' ? 'Войти' : 'Создать аккаунт';
+    $('authMessage').textContent = '';
+  }
+  $('loginTab').addEventListener('click', () => setMode('login'));
+  $('registerTab').addEventListener('click', () => setMode('register'));
+
+  function showApp() {
+    $('authScreen').classList.add('hidden'); $('appScreen').classList.remove('hidden'); $('userBar').classList.remove('hidden');
+    $('whoami').textContent = currentUser.username || currentUser.email;
+    socket.connect(); loadCabinet();
+  }
+  function showLogin(message = 'Сессия завершилась. Войдите снова.') {
+    socket.disconnect(); saveSessionToken(''); currentUser = null;
+    $('appScreen').classList.add('hidden'); $('userBar').classList.add('hidden');
+    $('authScreen').classList.remove('hidden'); $('authMessage').textContent = message;
+  }
+  async function api(url, options = {}) {
+    const { silent401 = false, ...requestOptions } = options;
+    const headers = { ...(requestOptions.body ? {'Content-Type':'application/json'} : {}), ...(requestOptions.headers || {}) };
+    if (sessionToken) headers.Authorization = `Bearer ${sessionToken}`;
+    const response = await fetch(url, { credentials: 'same-origin', ...requestOptions, headers });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401 && !url.startsWith('/api/auth/') && !silent401) showLogin(data.error || 'Сессия завершилась. Войдите снова.');
+    if (!response.ok) throw new Error(data.error || `Ошибка запроса (${response.status})`);
+    return data;
+  }
+  $('authForm').addEventListener('submit', async e => {
+    e.preventDefault(); $('authSubmit').disabled = true; $('authMessage').textContent = 'Проверяем данные…';
+    try {
+      const payload = { email: $('emailInput').value.trim(), password: $('passwordInput').value };
+      if (authMode === 'register') payload.referralCode = $('refInput').value.trim();
+      const result = await api(`/api/auth/${authMode === 'login' ? 'login' : 'register'}`, { method:'POST', body:JSON.stringify(payload) });
+      if (!result.token) throw new Error('Сервер не выдал токен сессии. Обновите страницу и попробуйте снова.');
+      saveSessionToken(result.token); currentUser = result.user; showApp();
+    } catch (err) { $('authMessage').textContent = err.message; }
+    finally { $('authSubmit').disabled = false; }
+  });
+  async function restoreSession() {
+    try { const data = await api('/api/me', { silent401: true }); currentUser = data.user; showApp(); }
+    catch (_) {
+      if (sessionToken) saveSessionToken('');
+      $('authScreen').classList.remove('hidden');
+      $('authMessage').textContent = ''; // unauthenticated first visit is normal, not a login error
+    }
+  }
+  $('logoutBtn').addEventListener('click', async () => {
+    socket.disconnect(); await api('/api/auth/logout', {method:'POST'}).catch(()=>{});
+    saveSessionToken(''); currentUser = null; $('appScreen').classList.add('hidden'); $('userBar').classList.add('hidden'); $('authScreen').classList.remove('hidden');
+  });
+  async function loadCabinet() {
+    try {
+      const data = await api('/api/me'); const u = data.user; currentUser = u;
+      $('whoami').textContent = u.username || u.email; $('roleTag').textContent = u.role === 'creator' ? 'CREATOR' : 'PLAYER';
+      $('roleTag').className = `small ${u.role === 'creator' ? 'creator' : ''}`;
+      $('topBalance').textContent = format(u.balance); $('cabBalance').textContent = `${format(u.balance)} ₦`;
+      $('totalBets').textContent = Number(u.stats?.totalBets || 0).toLocaleString('ru-RU');
+      $('totalWagered').textContent = `${format(u.stats?.totalWagered)} ₦`;
+      $('totalWins').textContent = Number(u.stats?.totalWins || 0).toLocaleString('ru-RU');
+      $('totalWon').textContent = `${format(u.stats?.totalWon)} ₦`;
+      $('refCodeDisplay').value = u.referralCode || '';
+      $('refLinkDisplay').value = u.referralLink || '';
+      $('referralsCount').textContent = u.referralsCount || 0; $('refEarnings').textContent = `${format(u.referralEarnings)} ₦`;
+      $('creatorApply').disabled = u.role === 'creator' || u.creatorStatus === 'approved' || u.creatorStatus === 'pending';
+      $('creatorApply').textContent = u.role === 'creator' || u.creatorStatus === 'approved' ? 'Статус: контент-мейкер' : u.creatorStatus === 'pending' ? 'Заявка на проверке' : 'Подать заявку контент-мейкера';
+      $('creatorMessage').textContent = u.creatorStatus === 'pending' ? 'Заявка ожидает ручной проверки.' : u.role === 'creator' ? 'Creator-статус активен.' : '';
+      const today = new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+      const claimed = u.lastDailyClaimDay === today;
+      $('dailyBtn').disabled = claimed; $('dailyBtn').classList.toggle('done', claimed);
+      $('dailyBtn').textContent = claimed ? 'Уже получен сегодня' : 'Забрать бонус';
+      $('dailyMessage').textContent = `Текущая серия: ${u.dailyBonusStreak || 0} / 7 дней · новый день по времени Lagos (WAT).`;
+      $('transactions').replaceChildren();
+      if (!data.transactions.length) $('transactions').innerHTML = '<span class="small">Операций пока нет.</span>';
+      for (const tx of data.transactions) {
+        const row = document.createElement('div'); row.className = 'tx';
+        const left = document.createElement('span'); left.textContent = `${tx.description || tx.type} · ${new Date(tx.createdAt).toLocaleDateString('ru-RU')}`;
+        const debit = tx.type === 'bet' || tx.type === 'withdraw';
+        const right = document.createElement('b'); right.className='tx-amount'; right.style.color = debit ? 'var(--red)' : 'var(--green)'; right.textContent = `${debit ? '−' : '+'}${format(tx.amount)} ₦`;
+        row.append(left,right); $('transactions').appendChild(row);
+      }
+    } catch (err) { console.error(err); }
+  }
+  $('creatorApply').addEventListener('click', async () => {
+    $('creatorApply').disabled = true; $('creatorMessage').textContent = 'Отправляем заявку…';
+    try { const d = await api('/api/creator/apply',{method:'POST',body:'{}'}); $('creatorMessage').textContent = d.message || 'Заявка отправлена.'; await loadCabinet(); }
+    catch (e) { $('creatorMessage').textContent = e.message; await loadCabinet(); }
+  });
+  $('dailyBtn').addEventListener('click', async () => {
+    $('dailyBtn').disabled = true; $('dailyMessage').textContent = 'Начисляем…';
+    try { const d = await api('/api/bonus/daily/claim',{method:'POST',body:'{}'}); $('dailyMessage').textContent = `Получено ${format(d.amount)} ₦. Серия: ${d.streak}/7.`; await loadCabinet(); }
+    catch (e) { $('dailyMessage').textContent = e.message; await loadCabinet(); }
+  });
+  async function copy(value, button) {
+    try { await navigator.clipboard.writeText(value); button.textContent = 'Готово'; setTimeout(()=>button.textContent='Копировать',1200); }
+    catch (_) { const input = button.previousElementSibling; input.select(); document.execCommand('copy'); button.textContent='Готово'; setTimeout(()=>button.textContent='Копировать',1200); }
+  }
+  $('copyCodeBtn').addEventListener('click', e => copy($('refCodeDisplay').value,e.currentTarget));
+  $('copyLinkBtn').addEventListener('click', e => copy($('refLinkDisplay').value,e.currentTarget));
+  $('promoBtn').addEventListener('click', async () => {
+    const button=$('promoBtn'); button.disabled=true; $('promoMessage').textContent='Проверяем код…';
+    try { const d=await api('/api/promo/activate',{method:'POST',body:JSON.stringify({promoCode:$('promoInput').value.trim()})}); $('promoMessage').textContent=d.message; $('promoInput').value=''; await loadCabinet(); }
+    catch(e){ $('promoMessage').textContent=e.message; } finally{button.disabled=false;}
+  });
+
+  function addFeed(text, color='') { const row=document.createElement('div'); row.textContent=text; if(color) row.style.color=color; $('feed').appendChild(row); $('feed').scrollTop=$('feed').scrollHeight; while($('feed').children.length>60) $('feed').firstChild.remove(); }
+  function waitingTimer(seconds) { clearInterval(countdown); let left=Number(seconds)||10; $('gameStatus').textContent=`Приём ставок · ${left} сек`; countdown=setInterval(()=>{left--; $('gameStatus').textContent=left>0?`Приём ставок · ${left} сек`:'Запуск…'; if(left<=0) clearInterval(countdown);},1000); }
+  socket.on('connect',()=>{$('socketState').textContent='В эфире';$('socketState').style.color='var(--green)';});
+  socket.on('disconnect',()=>{$('socketState').textContent='Переподключение…';$('socketState').style.color='var(--muted)';$('actionBtn').disabled=true;});
+  socket.on('connect_error',err=>{console.warn('Socket.IO error:',err.message);if(/вход|сессия/i.test(err.message)){showLogin('Сессия для игры не найдена. Войдите снова.');}else{$('socketState').textContent='Нет соединения';}});
+  socket.on('game_status',d=>{ gameState=d.gameState; if(gameState==='IN_GAME'){$('gameStatus').textContent='ГРАФИК РАСТЁТ';$('multiplier').textContent=`${Number(d.currentMultiplier||1).toFixed(2)}x`;$('actionBtn').disabled=true;$('actionBtn').textContent='Раунд уже идёт';} else if(gameState==='crashed'){ $('gameStatus').textContent='ВЗРЫВ!';$('actionBtn').disabled=true;$('actionBtn').textContent='Новый раунд скоро';} else {$('gameStatus').textContent='Приём ставок открыт';$('actionBtn').disabled=false;$('actionBtn').textContent='Сделать ставку';} });
+  socket.on('crash_waiting',d=>{gameState='waiting';hasBetInRound=false;$('multiplier').classList.remove('crashed');$('multiplier').textContent='VS';waitingTimer(d.timeToStart);$('actionBtn').className='bet';$('actionBtn').textContent='Сделать ставку';$('actionBtn').disabled=false;});
+  socket.on('crash_start',()=>{clearInterval(countdown);gameState='IN_GAME';$('gameStatus').textContent='ГРАФИК РАСТЁТ';$('multiplier').classList.remove('crashed');$('multiplier').textContent='1.00x';$('actionBtn').disabled=!hasBetInRound;$('actionBtn').className=hasBetInRound?'cashout':'disabled-look';$('actionBtn').textContent=hasBetInRound?'ЗАБРАТЬ ВЫИГРЫШ':'Раунд идёт';});
+  socket.on('crash_tick',d=>{$('multiplier').textContent=`${Number(d.multiplier).toFixed(2)}x`;});
+  socket.on('crash_crashed',d=>{clearInterval(countdown);gameState='crashed';hasBetInRound=false;$('gameStatus').textContent='ВЗРЫВ!';$('multiplier').textContent=`${Number(d.crashPoint).toFixed(2)}x`;$('multiplier').classList.add('crashed');$('actionBtn').disabled=true;$('actionBtn').textContent='Раунд завершён';loadCabinet();});
+  $('actionBtn').addEventListener('click',()=>{const bet=Number($('betAmount').value);if(gameState==='waiting'&&!hasBetInRound){if(!Number.isFinite(bet)||bet<=0){alert('Введите корректную ставку');return;} $('actionBtn').disabled=true;socket.emit('place_bet',{betAmount:bet});}else if(gameState==='IN_GAME'&&hasBetInRound){$('actionBtn').disabled=true;socket.emit('cashout',{});}});
+  socket.on('bet_accepted',d=>{hasBetInRound=true;$('actionBtn').disabled=true;$('actionBtn').textContent='Ставка принята';$('topBalance').textContent=format(d.newBalance);$('cabBalance').textContent=`${format(d.newBalance)} ₦`;loadCabinet();});
+  socket.on('cashout_success',d=>{hasBetInRound=false;$('actionBtn').disabled=true;$('actionBtn').textContent='Выигрыш забран';$('topBalance').textContent=format(d.newBalance);$('cabBalance').textContent=`${format(d.newBalance)} ₦`;loadCabinet();});
+  socket.on('game_error',d=>{alert(d.message||'Ошибка игры');$('actionBtn').disabled=!(gameState==='waiting'&&!hasBetInRound||gameState==='IN_GAME'&&hasBetInRound);});
+  socket.on('player_bet_placed',d=>addFeed(`📥 ${d.username||'Игрок'} поставил ${format(d.betAmount)} ₦`));
+  socket.on('player_cashed_out',d=>addFeed(`💰 ${d.username||'Игрок'} забрал на ${d.winMultiplier}x (+${format(d.winnings)} ₦)`,'var(--green)'));
+  restoreSession();
+})();
+</script>
+</body></html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naira Luck — Crash + Slots | Nature & Safari v10</title><script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--bg:#0c111b;--panel:#151e2c;--panel2:#1b2738;--line:#2b3a50;--text:#edf4ff;--muted:#91a2ba;--green:#35e39a;--red:#ff6174;--gold:#ffd166;--blue:#6ea8fe}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17263a 0,#0c111b 55%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}button,input{font:inherit}button{border:0;border-radius:10px;padding:12px 16px;font-weight:750;cursor:pointer;transition:.18s}button:disabled{opacity:.5;cursor:not-allowed}.shell{width:min(1160px,100%);margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand{font-size:21px;font-weight:850;letter-spacing:.2px}.brand span{color:var(--green)}.top-right{display:flex;align-items:center;gap:12px}.pill{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 12px;color:var(--muted)}.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.85fr);gap:18px}.panel{background:linear-gradient(160deg,rgba(27,39,56,.98),rgba(19,28,41,.98));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 18px 45px #0003}.panel h2,.panel h3{margin:0 0 14px}.muted{color:var(--muted)}.auth-wrap{max-width:480px;margin:8vh auto}.auth-wrap .panel{padding:28px}.auth-tabs{display:flex;gap:8px;margin:16px 0}.auth-tabs button{flex:1;background:var(--panel2);color:var(--muted)}.auth-tabs button.active{background:var(--green);color:#062116}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:13px;color:var(--muted)}input{width:100%;border:1px solid var(--line);border-radius:9px;background:#0d1521;color:var(--text);padding:12px;outline:none}input:focus{border-color:var(--blue)}.primary{background:var(--green);color:#062116;width:100%}.alert{min-height:22px;margin-top:10px;color:var(--red)}.small{font-size:12px;color:var(--muted)}.game-stage{height:290px;border-radius:14px;border:1px solid #34455f;background:radial-gradient(ellipse at 50% 110%,#24445a,#101827 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:12px 0 18px;overflow:hidden}.status{font-size:15px;color:var(--muted)}.multiplier{font-size:clamp(58px,9vw,88px);font-weight:900;letter-spacing:-4px}.multiplier.crashed{color:var(--red);animation:shake .2s infinite}.bet-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}.bet{background:var(--green);color:#062116;width:100%}.cashout{background:var(--red);color:white;width:100%}.disabled-look{background:#273448;color:#9babc1}.feed{height:115px;overflow:auto;background:#0d1521;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}.stack{display:grid;gap:16px}.balance{font-size:27px;font-weight:850;color:var(--green)}.card-title{display:flex;justify-content:space-between;align-items:center;gap:12px}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{padding:12px;border-radius:11px;background:#0e1724;border:1px solid #26364b}.stat strong{display:block;font-size:19px;margin-top:2px}.code-row{display:flex;gap:8px}.code-row input{min-width:0}.secondary{background:#26354a;color:var(--text)}.daily{background:var(--gold);color:#291d00;width:100%}.daily.done{background:#26354a;color:var(--muted)}.transactions{max-height:190px;overflow:auto}.tx{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #28374b;font-size:13px}.tx:last-child{border:0}.tx-amount{white-space:nowrap;color:var(--green)}.notice{padding:10px 12px;border-left:3px solid var(--gold);background:#292719;color:#dfd4ad;border-radius:5px;font-size:12px}.hidden{display:none!important}.creator{color:var(--gold)}@keyframes shake{0%,100%{transform:translateX(0)}50%{transform:translateX(-2px)}}
+
+/* V7: lively stadium scene and an original fictional runner. Game math is untouched. */
+:root{--green:#55f3bd;--red:#ff657d;--gold:#ffd166;--blue:#77a8ff}
+body{background:radial-gradient(ellipse at 13% 0%,#172853 0,transparent 37%),radial-gradient(ellipse at 92% 11%,#302048 0,transparent 32%),#090e19}
+.panel{background:linear-gradient(145deg,rgba(26,38,61,.97),rgba(16,25,42,.97));border-color:#304465;box-shadow:0 18px 55px #0005, inset 0 1px #ffffff0a;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.panel:hover{border-color:#5476a4;box-shadow:0 22px 60px #0006,0 0 24px #536fff17;transform:translateY(-2px)}
+button{transition:transform .16s ease,filter .16s ease,box-shadow .16s ease}
+button:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 8px 24px #0004}
+button:not(:disabled):active{transform:translateY(1px) scale(.985)}
+.primary,.bet{background:linear-gradient(110deg,#61f4be,#36cbe5);color:#061b21;box-shadow:0 8px 26px #38e6c133}
+.cashout{background:linear-gradient(110deg,#ff557d,#ff9b62);color:#fff;box-shadow:0 8px 26px #ff557d30}
+.daily{background:linear-gradient(110deg,#ffe07b,#ffad58);color:#281b00;box-shadow:0 8px 24px #ffc45a27}
+.runner-stage{position:relative;isolation:isolate;overflow:hidden;border:1px solid #3f527a;background:radial-gradient(ellipse at 50% 115%,#a54b30aa 0,transparent 38%),linear-gradient(180deg,#182747 0%,#17233d 57%,#20233a 100%);box-shadow:inset 0 0 44px #6ea8ff12,0 14px 42px #05091470}
+.runner-stage::before{content:"";position:absolute;inset:0;z-index:0;opacity:.38;background:repeating-linear-gradient(108deg,transparent 0 44px,#8eb8ff10 45px 47px,transparent 48px 92px);mask-image:linear-gradient(180deg,#000,transparent 90%)}
+.runner-sky{position:absolute;inset:0 0 28%;z-index:0;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#7a8fff26,transparent 53%)}
+.runner-sky::before,.runner-sky::after{content:"";position:absolute;top:15%;width:180px;height:180px;border:1px solid #9fc2ff1a;border-radius:50%;box-shadow:0 0 0 18px #9fc2ff09,0 0 0 38px #9fc2ff06}
+.runner-sky::before{left:-32px}.runner-sky::after{right:-32px}
+.runner-sky i{position:absolute;width:5px;height:5px;border-radius:50%;background:#e8f5ff;box-shadow:0 0 12px #8edbff;animation:stadium-twinkle 2.4s ease-in-out infinite alternate}
+.runner-sky i:nth-child(1){left:17%;top:26%}.runner-sky i:nth-child(2){left:76%;top:20%;animation-delay:.7s}.runner-sky i:nth-child(3){left:88%;top:53%;animation-delay:1.2s}.runner-sky i:nth-child(4){left:35%;top:16%;animation-delay:.3s}
+.runner-label{position:absolute;left:16px;top:14px;z-index:4;font-size:10px;font-weight:850;letter-spacing:.16em;color:#c4d6f7;background:#101a2ec9;border:1px solid #9bb9e72b;border-radius:999px;padding:7px 10px;backdrop-filter:blur(8px)}
+.runner-label span{color:#ffb45e;margin:0 3px}
+.runner-track{position:absolute;left:10%;bottom:8px;width:clamp(104px,16vw,158px);height:190px;z-index:2;animation:runner-idle 2.2s ease-in-out infinite}
+.runner-character{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 10px 18px #03091499);transform-origin:51% 82%}
+.runner-arm,.runner-leg{transform-box:fill-box;transform-origin:50% 12%;animation-duration:.38s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-direction:alternate}
+.runner-arm-front,.runner-leg-back{animation-name:limb-forward}.runner-arm-back,.runner-leg-front{animation-name:limb-back;animation-delay:-.19s}
+.runner-floor{position:absolute;left:0;right:0;bottom:0;height:25%;z-index:1;border-top:1px solid #ffd5a039;background:linear-gradient(180deg,#723d37a8,#172033 88%)}
+.runner-floor::before{content:"";position:absolute;inset:28% -20% 0;background:repeating-linear-gradient(174deg,transparent 0 18px,#ffbd7750 19px 20px,transparent 21px 42px);transform:perspective(110px) rotateX(28deg);transform-origin:top;opacity:.65}
+.stage-readout{position:relative;z-index:4;display:grid;justify-items:center;gap:3px;margin-top:-28px;text-shadow:0 3px 24px #020611,0 0 28px #83bcff30;pointer-events:none}
+.stage-readout .status{font-size:12px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#c6d7f7}
+.runner-stage .multiplier{font-size:clamp(62px,10vw,91px);line-height:1;color:#fff;letter-spacing:-.06em;text-shadow:0 0 18px #7adfff73,0 6px 28px #000b}
+.runner-stage .multiplier.crashed{color:#ff9b76;animation:impact-number .45s ease-in-out 2;text-shadow:0 0 30px #ff613fbb,0 4px 20px #000c}
+.impact-burst{position:absolute;left:50%;top:53%;z-index:3;width:165px;height:165px;display:grid;place-items:center;color:#fff1b4;font-size:76px;line-height:1;opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.1);clip-path:polygon(50% 0,60% 31%,85% 7%,72% 39%,100% 45%,71% 55%,91% 82%,61% 68%,50% 100%,40% 68%,9% 84%,29% 56%,0 45%,30% 39%,13% 11%,41% 31%);background:radial-gradient(circle,#fff8be 0 5%,#ffbd59 9%,#ff6c59 32%,#ff438d 48%,#8a5cffaa 72%,transparent 73%);filter:drop-shadow(0 0 25px #ff6b65)}
+.runner-stage.state-waiting .runner-track{animation:runner-idle 2.2s ease-in-out infinite}
+.runner-stage.state-running .runner-track{animation:runner-lane 4.8s ease-in-out infinite alternate}
+.runner-stage.state-running .runner-arm,.runner-stage.state-running .runner-leg{animation-duration:.31s}
+.runner-stage.state-crashed .runner-track{animation-play-state:paused}
+.runner-stage.state-crashed .runner-character{animation:runner-fall .68s cubic-bezier(.2,.75,.22,1) forwards}
+.runner-stage.state-crashed .runner-arm,.runner-stage.state-crashed .runner-leg{animation-play-state:paused}
+.runner-stage.state-crashed .impact-burst{animation:impact-burst .7s cubic-bezier(.15,.8,.3,1) forwards}
+@keyframes runner-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes runner-lane{0%{transform:translate(0,0)}50%{transform:translate(105%, -2px)}100%{transform:translate(210%,0)}}
+@keyframes limb-forward{from{transform:rotate(-23deg)}to{transform:rotate(22deg)}}
+@keyframes limb-back{from{transform:rotate(22deg)}to{transform:rotate(-23deg)}}
+@keyframes runner-fall{0%{transform:rotate(0) translateY(0)}35%{transform:rotate(22deg) translateY(-7px)}100%{transform:rotate(76deg) translateY(18px)}}
+@keyframes impact-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.12) rotate(-20deg)}24%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(12deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.38) rotate(28deg)}}
+@keyframes impact-number{0%,100%{transform:scale(1)}45%{transform:scale(1.12) rotate(-2deg)}}
+@keyframes stadium-twinkle{from{opacity:.35;transform:scale(.75)}to{opacity:1;transform:scale(1.35)}}
+@media(max-width:520px){.runner-label{font-size:9px;left:10px;top:10px}.runner-track{left:4%;width:105px;height:160px;bottom:6px}.runner-stage.state-running .runner-track{animation-name:runner-lane-mobile}.stage-readout{margin-top:-21px}.runner-stage .multiplier{font-size:68px}}
+@keyframes runner-lane-mobile{0%{transform:translate(0,0)}50%{transform:translate(95%,-2px)}100%{transform:translate(175%,0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.runner-stage.state-running .runner-track{transform:translateX(30%)}}
+
+/* Warm sand palette, compact controls, and original slot UI. */
+:root{--bg:#eee2cb;--panel:#fff9ee;--panel2:#f3e7d1;--line:#d8c2a1;--text:#35291e;--muted:#806b55;--green:#57705b;--red:#ad5847;--gold:#c5843d;--blue:#718a82}
+body{color:var(--text);background:radial-gradient(ellipse at 15% 0%,#fff0cf 0,transparent 38%),radial-gradient(ellipse at 90% 8%,#e7c99b 0,transparent 32%),#eee2cb}
+.panel{background:linear-gradient(145deg,#fffaf1,#f6ecd9);border-color:#ddc8a7;box-shadow:0 12px 32px #76563018,inset 0 1px #fff;}
+.panel:hover{border-color:#c7a978;box-shadow:0 15px 34px #76563022;transform:translateY(-1px)}
+.pill{background:#f5ead8;border-color:#d8c3a4;color:#6f5a45}
+.ghost,.secondary{background:#eee1ca;color:#4b3828;border:1px solid #d8c3a4}
+input{background:#fffcf5;color:#35291e;border-color:#d8c3a4}
+input:focus{border-color:#a47b49;box-shadow:0 0 0 3px #d9b77d35}
+.small,.muted{color:#806b55}
+.primary,.bet{background:linear-gradient(115deg,#81916b,#60785a);color:#fffdf4;box-shadow:0 5px 16px #637c5430}
+.cashout{background:linear-gradient(115deg,#b95d48,#d78555);color:#fffaf2;box-shadow:0 5px 16px #b95d4830}
+.daily{background:linear-gradient(115deg,#edc982,#dba45b);color:#49331a}
+.daily.done{background:#e8dfd0;color:#826f58}
+.stat{background:#f4ead9;border-color:#e1cfb3}.feed{background:#f4ead9;border-color:#dfceb3;color:#493d30}
+.transactions .tx{border-color:#e5d7c1}
+.runner-stage{background:radial-gradient(ellipse at 54% 108%,#bd835b 0,transparent 37%),linear-gradient(180deg,#e6d0aa 0%,#d7bd91 58%,#b98b67 100%);border-color:#c7a67c;box-shadow:inset 0 0 35px #fff5e21a,0 9px 24px #76563017}
+.runner-stage::before{opacity:.2;background:repeating-linear-gradient(108deg,transparent 0 48px,#fff9ec30 49px 50px,transparent 51px 98px)}
+.runner-sky{background:radial-gradient(ellipse at 50% 95%,#fff0cf8c,transparent 58%)}
+.runner-sky::before,.runner-sky::after{border-color:#fff8e355;box-shadow:0 0 0 18px #fff8e328,0 0 0 38px #fff8e21a}
+.runner-sky i{background:#fff8e8;box-shadow:0 0 8px #fff1c9}
+.runner-label{color:#5b4330;background:#fff8e6d9;border-color:#a47c4b55;backdrop-filter:none;letter-spacing:.1em}
+.runner-label span{color:#b36c3d}
+.runner-character{filter:drop-shadow(0 5px 6px #58402a28);object-fit:contain;object-position:center bottom}
+.runner-floor{border-top-color:#fff0d080;background:linear-gradient(180deg,#b47f5d,#8b684f 88%)}
+.runner-floor::before{background:repeating-linear-gradient(174deg,transparent 0 19px,#f1d2a166 20px 21px,transparent 22px 44px);opacity:.46}
+.stage-readout{text-shadow:0 2px 12px #fff5e4,0 1px 2px #fff8}
+.stage-readout .status{color:#604b38;text-shadow:0 1px #fff8}
+.runner-stage .multiplier{color:#4a3728;text-shadow:0 2px 12px #fff5e9,0 1px 2px #fff}
+.runner-stage .multiplier.crashed{color:#a84534;text-shadow:0 0 16px #efb28388,0 2px 5px #fff8}
+.impact-burst{color:#fff9dd;background:radial-gradient(circle,#fff7c8 0 5%,#f5c46d 9%,#dc8050 33%,#b96248 50%,#9c633eaa 72%,transparent 73%);filter:none}
+.notice{background:#f7ecd4;color:#6a5034;border-left-color:#c68b4b}
+
+.game-tabs{display:flex;gap:8px;padding:5px;margin:-3px 0 18px;background:#efe3cf;border:1px solid #e1cfb2;border-radius:14px}
+.game-tab{flex:1;display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:transparent;color:#7c654b;font-weight:850}
+.game-tab span{font-size:10px;letter-spacing:.08em;opacity:.72}
+.game-tab.active{background:linear-gradient(115deg,#7d8861,#5f7558);color:#fffaf0;box-shadow:0 4px 12px #61734b30}
+.game-view{min-width:0}.slot-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.slot-card{display:grid;grid-template-columns:94px minmax(0,1fr);align-items:stretch;gap:12px;text-align:left;padding:10px;background:#fbf4e8;color:var(--text);border:1px solid #dfc9a8;border-radius:16px;box-shadow:0 5px 16px #72583412;min-height:132px}
+.slot-card:hover{border-color:#ba8c56;background:#fff9ee}
+.slot-card-art{position:relative;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:linear-gradient(145deg,#e7d1aa,#c28e61);font-size:34px}
+.slot-card-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.penalty-card-art b{position:absolute;right:6px;top:5px;filter:drop-shadow(0 2px 2px #6e472a66);font-size:22px}
+.sand-card-art{background:radial-gradient(circle at 66% 30%,#ffe5a6,#dfa963 56%,#b9764c);color:#fff5d9}
+.sand-card-art i{position:absolute;right:9px;bottom:6px;font-style:normal;font-size:17px}
+.slot-card-copy{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}
+.slot-card-copy strong{font-size:16px;color:#493522}.slot-card-copy small{color:#806b55;line-height:1.35}.slot-card-copy em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.05em;color:#9b7147}
+.slot-demo-note{grid-column:1/-1;margin:0;padding:10px 12px;border-radius:10px;background:#f4ead8;color:#79654e;font-size:12px}
+.slot-game{margin-top:14px}.slot-game-head{display:flex;justify-content:space-between;align-items:center;margin:12px 0}.slot-game-head h3{margin:2px 0 0;font-size:21px}.eyebrow{font-size:9px;font-weight:900;letter-spacing:.17em;color:#987147}.compact-btn{padding:8px 11px}
+.slot-hero{position:relative;min-height:98px;overflow:hidden;display:flex;align-items:center;padding:12px 145px 12px 14px;margin:12px 0;background:linear-gradient(100deg,#efe0c3,#d6b487);border:1px solid #d5b88d;border-radius:14px}
+.slot-hero::after{content:"";position:absolute;right:0;top:0;width:48%;height:100%;background:linear-gradient(90deg,transparent,#c89b6a77)}
+.slot-hero>img{position:absolute;right:2px;bottom:-46px;width:150px;height:180px;object-fit:contain;object-position:center bottom;z-index:1;filter:none}
+.slot-hero-symbol{position:absolute;right:18px;top:12px;z-index:1;font-size:54px;animation:slot-drift 4s ease-in-out infinite}
+.slot-hero-copy{position:relative;z-index:2;display:grid;gap:5px;max-width:250px}.slot-hero-copy b{font-size:15px;color:#4b3825}.slot-hero-copy span{font-size:12px;color:#70573d;line-height:1.35}
+.slot-reels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:8px;background:#8b694b;border:1px solid #73543b;border-radius:15px;box-shadow:inset 0 2px 8px #513b2a45}
+.slot-cell{display:grid;place-items:center;aspect-ratio:1/1;min-width:0;border:1px solid #e5c99d;border-radius:10px;background:linear-gradient(155deg,#fff8e9,#ead7b6);font-size:clamp(22px,4vw,35px);box-shadow:0 2px 4px #59412a1b;user-select:none}
+.slot-cell.is-winning{background:linear-gradient(145deg,#fff1bb,#edc56e);border-color:#b77932;box-shadow:0 0 0 2px #fff2be,0 0 12px #cc8a3e66;z-index:1}
+.slot-cell.is-feature{background:linear-gradient(145deg,#fff2cf,#dfad63);border-color:#9f6f3c}
+.slot-reels.is-spinning .slot-cell{animation:reel-tick .13s ease-in-out infinite alternate}
+.slot-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,.65fr);align-items:end;gap:12px;margin-top:12px}
+.slot-bet-field{margin:0}.slot-bet-row{display:flex;gap:8px}.slot-bet-row input{max-width:120px}.bet-chips{display:flex;gap:5px}.bet-chips button{padding:7px 9px;background:#eee1ca;color:#61482e;border:1px solid #dbc5a3;border-radius:8px;font-size:12px}
+.slot-spin-btn{min-height:47px;border-radius:12px;background:linear-gradient(115deg,#a87947,#806a45);color:#fff9eb;letter-spacing:.08em;box-shadow:0 5px 14px #6b52302b}.slot-spin-btn span{margin-left:7px;font-size:17px}
+.slot-message{min-height:44px;margin-top:10px;padding:11px 12px;border-radius:10px;background:#f4ead8;border:1px solid #e2d0b1;color:#69553e;font-size:13px}
+.slot-message.is-win{background:#f6e4b8;border-color:#d4aa5f;color:#694b25;font-weight:800}
+.slot-message.is-error{background:#f4dfd7;border-color:#dbafa1;color:#8f4639}
+.slot-paytable{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.pay-chip{padding:5px 8px;border-radius:999px;background:#f3e7d4;border:1px solid #e1cfb3;color:#745b3e;font-size:10px}.pay-chip b{color:#4d3a28}
+@keyframes reel-tick{from{transform:translateY(-3px);opacity:.72}to{transform:translateY(3px);opacity:1}}
+@keyframes slot-drift{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-4px) rotate(4deg)}}
+@media(max-width:720px){.slot-picker{grid-template-columns:1fr}.slot-card{min-height:110px}.slot-controls{grid-template-columns:1fr}.slot-spin-btn{width:100%}}
+@media(max-width:520px){.runner-sky::before,.runner-sky::after{display:none}.runner-sky i{box-shadow:none}.runner-stage::before{opacity:.12}.runner-label{font-size:8px;letter-spacing:.06em}.runner-track{width:110px;height:165px;left:3%;filter:none}.runner-character{filter:none}.stage-readout{text-shadow:0 1px 6px #fff8}.impact-burst{width:125px;height:125px;filter:none}.slot-hero{padding-right:120px}.slot-hero>img{width:128px;height:158px;bottom:-38px}.slot-reels{gap:4px;padding:5px;border-radius:12px}.slot-cell{border-radius:7px;font-size:23px}.slot-controls{gap:8px}.game-tabs{margin-bottom:13px}}
+@media(hover:none){.panel:hover{transform:none;box-shadow:0 12px 32px #76563018,inset 0 1px #fff}}
+@media(prefers-reduced-motion:reduce){.slot-reels.is-spinning .slot-cell,.slot-hero-symbol{animation:none!important}}
+.low-bandwidth .runner-sky i{animation:none;box-shadow:none;opacity:.45}
+.low-bandwidth .runner-stage,.low-bandwidth .panel{box-shadow:none}
+.low-bandwidth .runner-character,.low-bandwidth .slot-hero>img{filter:none}
+.low-bandwidth .slot-reels.is-spinning .slot-cell{animation:none;opacity:.82}
+.low-bandwidth .runner-stage.state-running .runner-track{animation-duration:9s}
+
+/* Theme selector + savanna/jungle art; no external font, script, or network assets. */
+.theme-toggle{padding:9px 12px;border-radius:999px;background:#f7eddc;color:#624a32;border:1px solid #d6bf9c;font-weight:800;font-size:12px;white-space:nowrap}
+.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px}.header-actions .top-right{margin:0}
+.runner-stage{background:linear-gradient(180deg,#c3a16f,#916545 70%,#6e5039)}
+.runner-stage::before{background:linear-gradient(180deg,#362d2388 0%,#3c302238 45%,#2e241480 100%);opacity:.62;mask-image:none}
+.scene-background{position:absolute;inset:0;width:100%;height:100%;z-index:0;object-fit:cover;object-position:center 52%;opacity:.86;pointer-events:none}
+.runner-sky{z-index:1;background:linear-gradient(180deg,#3d2d1855,transparent 65%)}
+.runner-floor{z-index:2;background:linear-gradient(180deg,#7d5734bb,#593e2d 90%);border-top:1px solid #f9dfaa77}
+.runner-track{z-index:3;filter:drop-shadow(0 5px 5px #21180e66)}
+.runner-character{filter:drop-shadow(0 4px 5px #21180e55);transition:filter .25s ease}
+.runner-stage.state-running .runner-character{animation:runner-stride .42s ease-in-out infinite alternate}
+.runner-stage.state-crashed .runner-character{animation:runner-fall .68s cubic-bezier(.2,.75,.22,1) forwards}
+.runner-stage .stage-readout{z-index:6;text-shadow:0 2px 12px #21180eaa}
+.runner-stage .stage-readout .status{color:#fff2d8;text-shadow:0 2px 7px #1e160f}
+.runner-stage .multiplier{color:#fff4d8;text-shadow:0 0 18px #ffe3a366,0 3px 14px #24170e}
+.runner-stage .multiplier.crashed{color:#ffc37e}
+.scene-tree{position:absolute;z-index:2;bottom:18px;width:clamp(86px,13vw,142px);height:155px;color:#3c3925;opacity:.78;transform-origin:50% 100%;transform:scaleY(.16);pointer-events:none}
+.scene-tree-left{left:3%;animation-delay:.05s}.scene-tree-right{right:2%;height:180px;transform:scale(.8,.14);animation-delay:.3s}
+.runner-stage.scene-grown .scene-tree{animation:tree-grow .9s cubic-bezier(.16,.8,.23,1) forwards}
+.scene-animal{position:absolute;z-index:3;left:clamp(110px,23%,240px);bottom:29px;width:72px;height:40px;color:#382b1c;opacity:.8;animation:wildlife-step 4s ease-in-out infinite alternate;pointer-events:none}
+.runner-mood-badge{position:absolute;right:14px;top:51px;z-index:6;padding:6px 9px;border-radius:999px;background:#fff2d9d9;color:#634327;border:1px solid #dcb77b;font-size:10px;font-weight:900;letter-spacing:.05em;box-shadow:0 3px 9px #38251722}
+.runner-stage[data-mood="happy"] .runner-mood-badge{background:#fbefbb;color:#75501d;animation:mood-pop .42s ease-in-out 3}
+.runner-stage[data-mood="sad"] .runner-mood-badge{background:#eddbcb;color:#774f44}
+.runner-stage[data-mood="happy"] .runner-character{animation:runner-cheer .42s ease-in-out 3}
+.runner-stage.state-crashed[data-mood="sad"] .runner-character{animation:runner-fall .68s cubic-bezier(.2,.75,.22,1) forwards}
+.impact-burst{z-index:5}
+.slot-hero.jungle{background-image:linear-gradient(90deg,#17301ac7 0%,#243f22a8 47%,#15241633 100%),url('/jungle-bg-v1.webp');background-position:center;background-size:cover;border-color:#7e9763}
+.slot-hero.jungle .slot-hero-copy b,.slot-hero.jungle .slot-hero-copy span{color:#fff2d3;text-shadow:0 1px 4px #12200e}
+.slot-hero.savanna{background-image:linear-gradient(90deg,#553f23bb 0%,#69492480 48%,#38281622 100%),url('/nigeria-savanna-bg-v1.webp');background-position:center 58%;background-size:cover;border-color:#b59155}
+.slot-hero.savanna .slot-hero-copy b,.slot-hero.savanna .slot-hero-copy span{color:#fff2cf;text-shadow:0 1px 4px #3a2918}
+.slot-hero.savanna .slot-hero-symbol{color:#ffdf8d;text-shadow:0 3px 12px #4f341b}
+.slot-card-art.jungle{background-image:linear-gradient(135deg,#21402a77,#1b291c66),url('/jungle-bg-v1.webp');background-size:cover;background-position:center}
+.slot-card-art.savanna{background-image:linear-gradient(135deg,#79542888,#ad744577),url('/nigeria-savanna-bg-v1.webp');background-size:cover;background-position:center}
+.slot-reels.is-spinning{border-color:#c69d55;box-shadow:0 0 0 2px #e6c47b66,inset 0 0 20px #e4bc6850}
+.slot-reels.is-spinning::after{content:"";position:absolute;z-index:4;top:7px;bottom:7px;left:-23%;width:17%;pointer-events:none;background:linear-gradient(90deg,transparent,#fff5c9b8,transparent);animation:reel-scan 1.05s linear infinite}
+.slot-reels.is-spinning .slot-cell.is-premium{animation:premium-glint .38s ease-in-out infinite alternate;animation-delay:calc(var(--reel-index,0)*45ms);color:#8a591c}
+.slot-reels.has-win{animation:slot-win-frame .65s ease-in-out 2}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#201c16;--panel:#302a20;--panel2:#3b3225;--line:#61513b;--text:#f7edda;--muted:#c5b18e;--green:#b5c99a;--red:#e58a6e;--gold:#efc578;--blue:#9db9a7}
+:root[data-theme="dark"] body{color:var(--text);background:radial-gradient(ellipse at 15% 0%,#45351f 0,transparent 38%),radial-gradient(ellipse at 90% 8%,#303020 0,transparent 35%),#201c16}
+:root[data-theme="dark"] .panel{background:linear-gradient(145deg,#332c21,#272219);border-color:#61513b;box-shadow:0 12px 34px #0005,inset 0 1px #fff1}
+:root[data-theme="dark"] .panel:hover{border-color:#8c7148;box-shadow:0 15px 40px #0007}
+:root[data-theme="dark"] .pill,:root[data-theme="dark"] .stat,:root[data-theme="dark"] .feed,:root[data-theme="dark"] .slot-message,:root[data-theme="dark"] .slot-demo-note{background:#393126;border-color:#66543a;color:#ddc9a6}
+:root[data-theme="dark"] input{background:#241f18;color:#f7edda;border-color:#6b593e}
+:root[data-theme="dark"] .ghost,:root[data-theme="dark"] .secondary,:root[data-theme="dark"] .bet-chips button{background:#453a2b;color:#f2e5ca;border-color:#756044}
+:root[data-theme="dark"] .game-tabs{background:#292319;border-color:#67543a}
+:root[data-theme="dark"] .game-tab{color:#dac49f}
+:root[data-theme="dark"] .game-tab.active{background:linear-gradient(115deg,#788464,#566447);color:#fff7e5}
+:root[data-theme="dark"] .slot-card{background:#352d21;border-color:#6c583d;color:#f7edda}
+:root[data-theme="dark"] .slot-card-copy strong{color:#fff1d4}
+:root[data-theme="dark"] .slot-card-copy small{color:#d0bb98}
+:root[data-theme="dark"] .slot-card-copy em,:root[data-theme="dark"] .eyebrow{color:#e1b86f}
+:root[data-theme="dark"] .slot-hero{border-color:#68543a}
+:root[data-theme="dark"] .slot-hero-copy b,:root[data-theme="dark"] .slot-hero-copy span{color:#fff1d5}
+:root[data-theme="dark"] .slot-reels{background:#322619;border-color:#75603e}
+:root[data-theme="dark"] .slot-cell{background:linear-gradient(155deg,#4b3c2a,#30271d);border-color:#766044;color:#fff0cf;box-shadow:0 2px 4px #0004}
+:root[data-theme="dark"] .slot-cell.is-winning{background:linear-gradient(145deg,#81623a,#6a4c2d);border-color:#e0b85f}
+:root[data-theme="dark"] .slot-cell.is-feature{background:linear-gradient(145deg,#705637,#503b25);border-color:#d2a453}
+:root[data-theme="dark"] .slot-message.is-win{background:#554326;border-color:#ad864a;color:#ffe6a3}
+:root[data-theme="dark"] .slot-message.is-error{background:#4b2d26;border-color:#8d5546;color:#ffcab7}
+:root[data-theme="dark"] .pay-chip{background:#3d3224;border-color:#66543a;color:#e0c9a1}
+:root[data-theme="dark"] .pay-chip b{color:#fff0d3}
+:root[data-theme="dark"] .notice{background:#3a3022;color:#e8d6b7;border-left-color:#dcac65}
+:root[data-theme="dark"] .auth-tabs button{background:#3a3022;color:#cfb995}
+:root[data-theme="dark"] .auth-tabs button.active{background:#92a87a;color:#172011}
+:root[data-theme="dark"] .theme-toggle{background:#413625;color:#ffdda0;border-color:#776144}
+:root[data-theme="dark"] .runner-stage .stage-readout .status{color:#fff0d3}
+:root[data-theme="dark"] .runner-stage .multiplier{color:#fff0cf}
+:root[data-theme="dark"] .runner-mood-badge{background:#3d3021e8;color:#ffedcb;border-color:#8c6b3f}
+:root[data-theme="dark"] .runner-stage[data-mood="happy"] .runner-mood-badge{background:#66522d;color:#ffe7aa}
+:root[data-theme="dark"] .runner-stage[data-mood="sad"] .runner-mood-badge{background:#46342d;color:#e6c6b8}
+:root[data-theme="dark"] .runner-stage{border-color:#766040}
+.low-bandwidth .slot-hero.jungle,.low-bandwidth .slot-card-art.jungle{background-image:linear-gradient(135deg,#28452d,#3f5836)}
+.low-bandwidth .slot-hero.savanna,.low-bandwidth .slot-card-art.savanna{background-image:linear-gradient(135deg,#8a663b,#b28c53)}
+.low-bandwidth .scene-tree,.low-bandwidth .scene-animal{animation:none;transform:none}
+.low-bandwidth .slot-reels.is-spinning::after{display:none}
+.low-bandwidth .slot-reels.is-spinning .slot-cell.is-premium{animation:none;outline:2px solid #ca9650}
+@keyframes runner-stride{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(-5px) rotate(1.5deg)}}
+@keyframes runner-cheer{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-11px) rotate(-3deg)}}
+@keyframes tree-grow{0%{transform:scaleY(.08);opacity:.25}75%{transform:scaleY(1.04);opacity:.86}100%{transform:scaleY(1);opacity:.78}}
+@keyframes wildlife-step{from{transform:translateX(-5px)}to{transform:translateX(8px)}}
+@keyframes mood-pop{0%,100%{transform:scale(1)}45%{transform:scale(1.12)}}
+@keyframes reel-scan{0%{left:-23%;opacity:0}14%{opacity:.75}85%{opacity:.75}100%{left:106%;opacity:0}}
+@keyframes premium-glint{from{box-shadow:0 0 0 #f0cd74;transform:scale(1)}to{box-shadow:0 0 16px #e0b556;transform:scale(1.045)}}
+@keyframes slot-win-frame{0%,100%{box-shadow:0 0 0 2px #e6c47b55}50%{box-shadow:0 0 0 4px #e6c47bcc,0 0 22px #e2ad4b99}}
+@media(max-width:650px){.runner-stage .scene-tree{width:80px;height:115px}.scene-tree-right{height:132px}.scene-animal{width:52px;left:35%;bottom:25px}.runner-mood-badge{right:9px;top:45px;font-size:9px}.theme-toggle{padding:8px 10px}.slot-hero.jungle,.slot-hero.savanna{background-position:center}}
+@media(prefers-reduced-motion:reduce){.scene-tree,.scene-animal,.runner-stage.state-running .runner-character,.runner-stage[data-mood="happy"] .runner-character{animation:none!important;transform:none!important}.slot-reels.is-spinning::after,.slot-reels.is-spinning .slot-cell.is-premium{animation:none!important}}
+.low-bandwidth .scene-background{display:none}
+:root[data-theme="dark"] .runner-stage::before{opacity:.8;background:linear-gradient(180deg,#241d1388,#1e170ca8)}
+:root[data-theme="dark"] .scene-background{opacity:.55}
+:root[data-theme="dark"] .slot-hero.jungle{background-image:linear-gradient(90deg,#101a13e6,#111d13b8 56%,#1016116b),url('/jungle-bg-v1.webp')}
+:root[data-theme="dark"] .slot-hero.savanna{background-image:linear-gradient(90deg,#21190fe6,#2c2116b8 56%,#20180f6b),url('/nigeria-savanna-bg-v1.webp')}
+
+@media(max-width:820px){.layout{grid-template-columns:1fr}.shell{padding:15px}.top{align-items:flex-start}.top-right{flex-wrap:wrap;justify-content:flex-end}.game-stage{height:250px}}
+@media(max-width:520px){.top{display:grid}.top-right{justify-content:space-between}.panel{padding:16px}.bet-form{grid-template-columns:1fr}.brand{font-size:19px}.game-stage{height:220px}}
+
+/* v10: cylindrical reels, tactile symbol depth, and a compact Web Audio mixer. */
+.slot-reels{position:relative;perspective:850px;transform-style:preserve-3d;overflow:hidden}
+.reel-column{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:6px;min-width:0;transform-style:preserve-3d;perspective:460px;position:relative}
+.slot-cell{position:relative;overflow:hidden;transform-style:preserve-3d;backface-visibility:hidden;background:linear-gradient(145deg,#fff9ed 0%,#ebd7b3 65%,#d9bb8e 100%);box-shadow:inset 0 1px #fff,inset 0 -3px 0 #b38b5c55,0 3px 6px #49351e2a}
+.slot-cell::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,#fff9 0%,transparent 38%,transparent 68%,#7b53211e 100%);transform:translateZ(2px)}
+.slot-symbol{position:relative;z-index:1;display:block;line-height:1;transform:translateZ(17px) rotateY(-8deg) rotateX(4deg);filter:drop-shadow(0 4px 2px #50381f5c);text-shadow:0 1px 0 #fff7,0 3px 0 #8a6a4052,0 5px 8px #4e392b3d;transition:transform .18s,filter .18s}
+.slot-cell.is-winning .slot-symbol{animation:symbol-win-pop .45s cubic-bezier(.18,.8,.28,1.3) 2;filter:drop-shadow(0 6px 4px #6e471c77)}
+.slot-cell.is-feature .slot-symbol{filter:drop-shadow(0 4px 3px #7c4d1b88)}
+.reel-column.is-rolling .slot-cell{animation:reel-cell-roll .24s linear infinite;animation-delay:calc(var(--row-index,0)*-40ms);}
+.reel-column.is-rolling .slot-symbol{animation:icon-roll .24s linear infinite}
+.reel-column.is-stopping .slot-cell{animation:reel-settle .28s cubic-bezier(.16,.75,.25,1.2) both}
+.slot-reels.is-spinning{box-shadow:inset 0 0 25px #573d2a77,0 0 0 2px #e1bd7477}
+.audio-mixer{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:11px;padding:10px 12px;border:1px solid #ddc9a9;border-radius:12px;background:#f5ead8}
+.audio-mixer label{display:flex;align-items:center;gap:8px;color:#725a3c;font-size:11px;font-weight:800;white-space:nowrap}
+.audio-mixer input[type=range]{width:clamp(70px,12vw,116px);height:18px;padding:0;accent-color:#927347;background:transparent;border:0}
+.sound-toggle{padding:7px 10px;background:#e5d2b2;color:#5a4127;border:1px solid #d3b991;border-radius:9px;font-size:11px;white-space:nowrap}
+.sound-toggle[aria-pressed="false"]{background:#eee6da;color:#786e60}
+:root[data-theme="dark"] .audio-mixer{background:#393126;border-color:#66543a}
+:root[data-theme="dark"] .audio-mixer label{color:#e1cca7}
+:root[data-theme="dark"] .sound-toggle{background:#55452f;color:#fff0d0;border-color:#806849}
+:root[data-theme="dark"] .sound-toggle[aria-pressed="false"]{background:#40372c;color:#b9a889}
+:root[data-theme="dark"] .slot-cell{background:linear-gradient(145deg,#57442d,#35291d 70%,#2a2119);box-shadow:inset 0 1px #ffffff18,inset 0 -3px 0 #140e0977,0 3px 6px #0006}
+@keyframes reel-cell-roll{0%{transform:translateY(-8px) rotateX(-24deg);filter:blur(.4px)}50%{transform:translateY(0) rotateX(0)}100%{transform:translateY(8px) rotateX(24deg);filter:blur(.4px)}}
+@keyframes icon-roll{0%{transform:translateZ(17px) rotateY(-8deg) rotateX(28deg) scale(.94)}50%{transform:translateZ(19px) rotateY(0) rotateX(0) scale(1.02)}100%{transform:translateZ(17px) rotateY(8deg) rotateX(-28deg) scale(.94)}}
+@keyframes reel-settle{0%{transform:translateY(-12px) rotateX(-16deg)}65%{transform:translateY(3px) rotateX(3deg)}100%{transform:translateY(0) rotateX(0)}}
+@keyframes symbol-win-pop{0%,100%{transform:translateZ(17px) scale(1)}45%{transform:translateZ(27px) scale(1.18) rotateY(8deg)}}
+.runner-stage.state-running .runner-character{animation:runner-stride-v10 .36s ease-in-out infinite}
+@keyframes runner-stride-v10{0%,100%{transform:translateY(0) rotate(-1deg) scaleX(.99)}25%{transform:translateY(-9px) rotate(1.2deg) scaleX(1.015)}50%{transform:translateY(-3px) rotate(-.6deg) scaleX(.995)}75%{transform:translateY(-11px) rotate(1.4deg) scaleX(1.01)}}
+@media(max-width:520px){.reel-column{gap:4px}.audio-mixer{gap:7px;padding:8px}.audio-mixer label{gap:5px}.audio-mixer input[type=range]{width:70px}}
+@media(prefers-reduced-motion:reduce){.reel-column.is-rolling .slot-cell,.reel-column.is-rolling .slot-symbol,.slot-cell.is-winning .slot-symbol{animation:none!important}.runner-stage.state-running .runner-character{animation:none!important;transform:translateY(-4px)}}
+.low-bandwidth .slot-cell::before{display:none}.low-bandwidth .reel-column.is-rolling .slot-cell,.low-bandwidth .reel-column.is-rolling .slot-symbol{animation-duration:.5s}
+
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="brand">NAIRA <span>LUCK</span></div><div class="header-actions"><button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">🌙 Тёмная</button><div class="top-right hidden" id="userBar"><span class="pill" id="whoami"></span><span class="pill">Баланс <b id="topBalance">0.00</b> ₦</span><button class="ghost" id="logoutBtn">Выйти</button></div></div></header>
+  <section id="authScreen" class="auth-wrap"><div class="panel"><h2>Ваш аккаунт</h2><p class="muted">Войдите или создайте аккаунт, чтобы открыть игру и личный кабинет.</p><div class="auth-tabs"><button id="loginTab" class="active">Вход</button><button id="registerTab">Регистрация</button></div><form id="authForm"><div class="field"><label>Email</label><input id="emailInput" type="email" autocomplete="email" required></div><div class="field"><label>Пароль</label><input id="passwordInput" type="password" autocomplete="current-password" minlength="10" required></div><div class="field hidden" id="refField"><label>Реферальный код (необязательно)</label><input id="refInput" autocomplete="off" placeholder="Код друга или автора"></div><button class="primary" id="authSubmit">Войти</button><div class="alert" id="authMessage" role="status"></div></form><div class="small">Для демонстрационного MVP используются тестовые балансы в ₦. Не вносите реальные средства.</div></div></section>
+  <main id="appScreen" class="layout hidden">
+    <section class="panel game-panel">
+      <nav class="game-tabs" aria-label="Выбор игры">
+        <button id="crashTab" class="game-tab active" type="button">Crash <span>LIVE</span></button>
+        <button id="slotsTab" class="game-tab" type="button">Slots <span>2 демо-игры</span></button>
+      </nav>
+      <div id="crashView" class="game-view">
+        <div class="card-title"><h2>Crash <span class="small">LIVE</span></h2><span id="socketState" class="pill">Подключение…</span></div>
+        <div id="runnerStage" class="game-stage runner-stage state-waiting" data-mood="effort" aria-label="Crash: анимированная сцена забега">
+          <img class="scene-background" src="/nigeria-savanna-bg-v1.webp" width="960" height="540" loading="lazy" decoding="async" alt="" fetchpriority="low">
+          <div class="runner-sky" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <svg class="scene-tree scene-tree-left" viewBox="0 0 140 190" aria-hidden="true"><path d="M67 188 Q78 145 74 105 L66 69 L72 65 L83 106 Q85 144 77 188Z" fill="currentColor"/><path d="M74 91 Q47 60 23 60 M76 86 Q100 52 123 55 M72 74 Q65 43 49 31 M80 75 Q91 39 105 27" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M10 63 Q23 41 47 49 Q65 33 82 49 Q106 31 130 52 Q130 72 102 72 Q79 84 57 69 Q34 80 10 63Z" fill="currentColor"/><path d="M41 62 Q51 46 65 58 Q75 43 90 56 Q99 44 112 57" fill="none" stroke="#d9b77c" stroke-opacity=".45" stroke-width="3"/></svg>
+          <svg class="scene-tree scene-tree-right" viewBox="0 0 140 190" aria-hidden="true"><path d="M67 188 Q78 145 74 105 L66 69 L72 65 L83 106 Q85 144 77 188Z" fill="currentColor"/><path d="M74 91 Q47 60 23 60 M76 86 Q100 52 123 55 M72 74 Q65 43 49 31 M80 75 Q91 39 105 27" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M10 63 Q23 41 47 49 Q65 33 82 49 Q106 31 130 52 Q130 72 102 72 Q79 84 57 69 Q34 80 10 63Z" fill="currentColor"/></svg>
+          <svg class="scene-animal" viewBox="0 0 140 70" aria-hidden="true"><path d="M16 48 Q27 33 52 35 L69 24 L93 27 L106 38 L126 39 L129 45 L110 48 L105 60 L99 60 L98 48 L76 49 L72 63 L66 63 L66 48 L42 47 L37 60 L31 60 L32 46 L20 52Z" fill="currentColor"/><path d="M91 28 L99 17 L102 30 M108 31 L117 21 L115 36" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <div class="runner-label">NAIROBI SPRINT <span>·</span> ВЫМЫШЛЕННЫЙ СПРИНТЕР</div><div id="runnerMoodBadge" class="runner-mood-badge" aria-live="polite">Сосредоточен</div>
+          <div class="runner-track" aria-hidden="true"><img id="runnerCharacter" class="runner-character" src="/runner-effort-v1.webp" width="480" height="720" decoding="async" fetchpriority="high" alt=""></div>
+          <div class="impact-burst" aria-hidden="true">✦</div>
+          <div class="stage-readout"><div id="gameStatus" class="status">Ожидаем подключение</div><div id="multiplier" class="multiplier">1.00x</div></div>
+          <div class="runner-floor" aria-hidden="true"></div>
+        </div>
+        <div class="bet-form"><div class="field"><label for="betAmount">Ставка (₦)</label><input id="betAmount" type="number" min="1" step="1" value="100"></div><button id="actionBtn" class="bet" disabled>Подключение…</button></div>
+        <h3 style="margin-top:22px">События раунда</h3><div id="feed" class="feed" aria-live="polite"></div>
+      </div>
+      <div id="slotsView" class="game-view hidden">
+        <div class="card-title"><div><h2>Slots <span class="small">ДЕМО</span></h2><p class="muted small" style="margin:5px 0 0">Оригинальные мини-игры · только виртуальные кредиты</p></div><span class="pill">5 линий</span></div>
+        <div id="slotPicker" class="slot-picker">
+          <button class="slot-card" data-slot="penalty-pulse" type="button">
+            <span class="slot-card-art penalty-card-art jungle"><img src="/penalty-hero-v1.webp" width="480" height="720" loading="lazy" decoding="async" alt=""><b>⚽</b></span>
+            <span class="slot-card-copy"><strong>Canopy Kick</strong><small>Пенальти среди джунглей</small><em>5×3 · 5 линий · бонус 3 удара</em></span>
+          </button>
+          <button class="slot-card" data-slot="sandstorm" type="button">
+            <span class="slot-card-art sand-card-art savanna"><b>🌪️</b><i>✦</i></span>
+            <span class="slot-card-copy"><strong>Nigeria Savanna</strong><small>Скарабеи поднимают песчаную бурю</small><em>5×3 · 5 линий · расширенный Wild</em></span>
+          </button>
+          <p class="slot-demo-note">Результаты рассчитывает сервер. Только демо-баланс; подсветка барабанов не предсказывает выигрыш, вывода денег нет.</p>
+        </div>
+        <div id="slotGame" class="slot-game hidden">
+          <div class="slot-game-head"><div><div class="eyebrow" id="slotEyebrow">DEMO SLOT</div><h3 id="slotTitle">Canopy Kick</h3></div><button id="slotBackBtn" class="secondary compact-btn" type="button">← Игры</button></div>
+          <div id="slotHero" class="slot-hero">
+            <img id="slotHeroImage" src="/penalty-hero-v1.webp" width="480" height="720" loading="lazy" decoding="async" alt="Вымышленный взрослый футболист у ворот">
+            <div id="slotHeroSymbol" class="slot-hero-symbol hidden" aria-hidden="true">🌾</div>
+            <div class="slot-hero-copy"><b id="slotFeatureTitle">Серия пенальти</b><span id="slotFeatureText">Три свистка запускают три удара по воротам.</span></div>
+          </div>
+          <div id="slotReels" class="slot-reels" aria-label="Пять барабанов по три символа" aria-live="polite"></div>
+          <div class="slot-controls">
+            <div class="field slot-bet-field"><label for="slotBet">Ставка за вращение (₦)</label><div class="slot-bet-row"><input id="slotBet" type="number" min="5" max="500" step="5" value="25"><div class="bet-chips"><button type="button" data-bet="5">5</button><button type="button" data-bet="25">25</button><button type="button" data-bet="100">100</button></div></div></div>
+            <button id="slotSpinBtn" class="slot-spin-btn" type="button">КРУТИТЬ <span>↻</span></button>
+          </div>
+          <section class="audio-mixer" aria-label="Микшер громкости">
+            <button id="soundToggle" class="sound-toggle" type="button" aria-pressed="true">🔊 Звук включён</button>
+            <label>Общая <input id="masterVolume" type="range" min="0" max="100" value="62" aria-label="Общая громкость"></label>
+            <label>Эффекты <input id="fxVolume" type="range" min="0" max="100" value="78" aria-label="Громкость эффектов"></label>
+          </section>
+          <div id="slotMessage" class="slot-message" aria-live="polite">Выберите ставку и вращайте барабаны.</div>
+          <div id="slotPaytable" class="slot-paytable"></div>
+        </div>
+      </div>
+    </section>
+    <aside class="stack">
+      <section class="panel"><div class="card-title"><h3>Личный кабинет</h3><span id="roleTag" class="small"></span></div><div class="balance" id="cabBalance">0.00 ₦</div><div class="stat-grid" style="margin-top:14px"><div class="stat"><span class="small">Ставок</span><strong id="totalBets">0</strong></div><div class="stat"><span class="small">Оборот</span><strong id="totalWagered">0 ₦</strong></div><div class="stat"><span class="small">Выводов</span><strong id="totalWins">0</strong></div><div class="stat"><span class="small">Получено в игре</span><strong id="totalWon">0 ₦</strong></div></div></section>
+      <section class="panel"><h3>Ежедневный бонус</h3><p class="muted small">Забирайте бонус раз в календарный день по времени Нигерии. Серия растёт до 7-го дня.</p><button id="dailyBtn" class="daily">Забрать бонус</button><div id="dailyMessage" class="small" style="margin-top:9px"></div></section>
+      <section class="panel"><h3>Пригласить друзей</h3><p class="muted small">Ваш код и ссылка. Бонус пригласившему начисляется после первого подтверждённого депозита приглашённого.</p><div class="code-row"><input id="refCodeDisplay" readonly aria-label="Реферальный код"><button id="copyCodeBtn" class="secondary">Копировать</button></div><div class="code-row" style="margin-top:8px"><input id="refLinkDisplay" readonly aria-label="Реферальная ссылка"><button id="copyLinkBtn" class="secondary">Копировать</button></div><div class="stat-grid" style="margin-top:10px"><div class="stat"><span class="small">Приглашено</span><strong id="referralsCount">0</strong></div><div class="stat"><span class="small">Бонусы</span><strong id="refEarnings">0 ₦</strong></div></div><div class="notice" style="margin-top:12px">MVP: 100 ₦ пригласившему и 50 ₦ новому игроку после первого подтверждённого депозита. Процентные 5%/15% пока не начисляются автоматически — нужно утвердить базу расчёта и условия creator-программы.</div><div id="creatorBox" style="margin-top:12px"><button id="creatorApply" class="secondary" style="width:100%">Подать заявку контент-мейкера</button><div id="creatorMessage" class="small" style="margin-top:7px"></div></div></section>
+      <section class="panel"><div class="card-title"><h3>Промокод</h3></div><div class="code-row"><input id="promoInput" placeholder="Например, NAIRA500"><button id="promoBtn" class="secondary">Применить</button></div><div id="promoMessage" class="small" style="margin-top:8px"></div></section>
+      <section class="panel"><h3>Последние операции</h3><div id="transactions" class="transactions"><span class="small">Загрузка…</span></div></section>
+    </aside>
+  </main>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const RUNNER_MOODS={effort:{src:'/runner-effort-v1.webp',label:'Сосредоточен'},happy:{src:'/runner-happy-v1.webp',label:'Забрал вовремя!'},sad:{src:'/runner-sad-v1.webp',label:'Не успел забрать'}};
+  let moodReturnTimer=null, lastCashoutAt=0;
+  function setRunnerMode(mode) { const stage = $('runnerStage'); if (!stage) return; stage.classList.remove('state-waiting','state-running','state-crashed'); stage.classList.add(`state-${mode}`,'scene-grown'); }
+  function setRunnerMood(mood,duration=0) {
+    const state=RUNNER_MOODS[mood]||RUNNER_MOODS.effort, stage=$('runnerStage'), img=$('runnerCharacter');
+    if (moodReturnTimer) clearTimeout(moodReturnTimer);
+    if (stage) stage.dataset.mood=mood;
+    if (img && img.getAttribute('src')!==state.src) img.setAttribute('src',state.src);
+    if ($('runnerMoodBadge')) $('runnerMoodBadge').textContent=state.label;
+    if (duration) moodReturnTimer=setTimeout(()=>setRunnerMood('effort'),duration);
+  }
+  function applyTheme(theme) {
+    const safe=theme==='dark'?'dark':'light'; document.documentElement.dataset.theme=safe;
+    const button=$('themeToggle'); if (button) { button.textContent=safe==='dark'?'☀ Светлая':'☾ Тёмная'; button.setAttribute('aria-pressed',String(safe==='dark')); }
+    try { localStorage.setItem('nairaTheme',safe); } catch (_) {}
+  }
+  let savedTheme='light'; try { if (localStorage.getItem('nairaTheme')==='dark') savedTheme='dark'; } catch (_) {}
+  document.documentElement.dataset.theme=savedTheme;
+  let authMode = 'login';
+  let authEpoch = 0; // Invalidates the initial session check if a user logs in before it finishes.
+  let currentUser = null;
+  let hasBetInRound = false;
+  let gameState = 'waiting';
+  let countdown = null;
+  let sessionToken = '';
+  try { sessionToken = sessionStorage.getItem('sessionToken') || ''; } catch (_) {}
+  const socket = io({ autoConnect: false, auth: { token: sessionToken } });
+  function saveSessionToken(token) {
+    authEpoch += 1;
+    sessionToken = token || '';
+    socket.auth = { token: sessionToken };
+    try { if (sessionToken) sessionStorage.setItem('sessionToken', sessionToken); else sessionStorage.removeItem('sessionToken'); } catch (_) {}
+  }
+  const format = n => Number(n || 0).toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const connectionInfo = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (connectionInfo?.saveData || /^(slow-2g|2g)$/.test(connectionInfo?.effectiveType || '')) document.documentElement.classList.add('low-bandwidth');
+  const queryRef = new URLSearchParams(location.search).get('ref');
+  if (queryRef) { $('refInput').value = queryRef.toUpperCase(); $('registerTab').click(); }
+  function setMode(mode) {
+    authMode = mode;
+    $('loginTab').classList.toggle('active', mode === 'login');
+    $('registerTab').classList.toggle('active', mode === 'register');
+    $('refField').classList.toggle('hidden', mode !== 'register');
+    $('passwordInput').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+    $('authSubmit').textContent = mode === 'login' ? 'Войти' : 'Создать аккаунт';
+    $('authMessage').textContent = '';
+  }
+  $('loginTab').addEventListener('click', () => setMode('login'));
+  $('registerTab').addEventListener('click', () => setMode('register'));
+
+  function showApp() {
+    $('authScreen').classList.add('hidden'); $('appScreen').classList.remove('hidden'); $('userBar').classList.remove('hidden');
+    $('whoami').textContent = currentUser.username || currentUser.email;
+    socket.connect(); loadCabinet();
+  }
+  function showLogin(message = 'Сессия завершилась. Войдите снова.') {
+    socket.disconnect(); saveSessionToken(''); currentUser = null;
+    $('appScreen').classList.add('hidden'); $('userBar').classList.add('hidden');
+    $('authScreen').classList.remove('hidden'); $('authMessage').textContent = message;
+  }
+  async function api(url, options = {}) {
+    const { silent401 = false, ...requestOptions } = options;
+    const headers = { ...(requestOptions.body ? {'Content-Type':'application/json'} : {}), ...(requestOptions.headers || {}) };
+    headers['X-Client-Build'] = 'nature-safari-v10';
+    if (sessionToken) {
+      headers.Authorization = `Bearer ${sessionToken}`;
+      headers['X-Session-Token'] = sessionToken;
+    }
+    const response = await fetch(url, { credentials: 'same-origin', ...requestOptions, headers });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401 && !url.startsWith('/api/auth/') && !silent401) showLogin(data.error || 'Сессия завершилась. Войдите снова.');
+    if (!response.ok) throw new Error(data.error || `Ошибка запроса (${response.status})`);
+    return data;
+  }
+  const SLOT_UI = {
+    'penalty-pulse': {
+      title: 'Canopy Kick',
+      icons: {ball:'⚽',glove:'🧤',boot:'👟',whistle:'📣',trophy:'🏆',wild:'✨'},
+      labels: {ball:'Мяч',glove:'Перчатки',boot:'Бутса',whistle:'Свисток',trophy:'Кубок',wild:'Wild'},
+      featureTitle: 'Джунгли и серия пенальти',
+      featureText: 'Три свистка запускают три удара по воротам; каждый гол даёт бонусный множитель.',
+      pays: [['Мяч','0,5× / 1,5× / 5×'],['Перчатки','0,75× / 2× / 7×'],['Бутса','1× / 3× / 10×'],['Свисток','1,5× / 5× / 15×'],['Кубок','2× / 7× / 25×'],['Wild','2× / 8× / 30×']],
+      sample: [['ball','glove','boot'],['trophy','ball','glove'],['boot','whistle','ball'],['glove','boot','trophy'],['whistle','trophy','glove']]
+    },
+    sandstorm: {
+      title: 'Nigeria Savanna',
+      icons: {shell:'🐚',camel:'🐪',palm:'🌴',lamp:'🪔',scarab:'🪲',wild:'✨'},
+      labels: {shell:'Ракушка',camel:'Верблюд',palm:'Оазис',lamp:'Фонарь',scarab:'Скарабей',wild:'Wild'},
+      featureTitle: 'Природа нигерийской саванны',
+      featureText: 'Три скарабея поднимают песчаную бурю и превращают барабан в Wild.',
+      pays: [['Ракушка','0,5× / 1,5× / 5×'],['Верблюд','0,75× / 2,5× / 8×'],['Оазис','1× / 4× / 12×'],['Фонарь','1,5× / 6× / 20×'],['Скарабей','2× / 8× / 30×'],['Wild','3× / 10× / 35×']],
+      sample: [['shell','camel','palm'],['lamp','shell','camel'],['camel','scarab','shell'],['palm','lamp','shell'],['scarab','camel','lamp']]
+    }
+  };
+  let activeSlotId = '';
+  let pendingSlotSpin = null;
+  function showSlotMessage(text, type='') {
+    const node = $('slotMessage');
+    node.textContent = text;
+    node.classList.toggle('is-win', type === 'win');
+    node.classList.toggle('is-error', type === 'error');
+  }
+  function setActiveGameTab(which) {
+    const toSlots = which === 'slots';
+    $('crashTab').classList.toggle('active', !toSlots);
+    $('slotsTab').classList.toggle('active', toSlots);
+    $('crashView').classList.toggle('hidden', toSlots);
+    $('slotsView').classList.toggle('hidden', !toSlots);
+  }
+  function renderSlotGrid(grid, lineWins=[], feature=null) {
+    const node = $('slotReels');
+    const winning = new Set();
+    for (const win of lineWins || []) for (const cell of win.cells || []) winning.add(`${cell[0]}-${cell[1]}`);
+    const featureCells = new Set((feature?.scatterCells || []).map(cell => `${cell[0]}-${cell[1]}`));
+    node.replaceChildren();
+    const meta=SLOT_UI[activeSlotId];
+    for (let reel=0; reel<5; reel++) {
+      const column=document.createElement('div'); column.className='reel-column';
+      column.dataset.reel=String(reel); column.style.setProperty('--reel-index',reel);
+      for (let row=0; row<3; row++) {
+        const symbol = grid?.[reel]?.[row] || 'wild';
+        const cell = document.createElement('div'); cell.className='slot-cell';
+        if (winning.has(`${reel}-${row}`)) cell.classList.add('is-winning');
+        if (featureCells.has(`${reel}-${row}`) || (feature?.type === 'sandstorm-wild' && feature.reel === reel)) cell.classList.add('is-feature');
+        if (['wild','trophy','whistle','scarab'].includes(symbol)) cell.classList.add('is-premium');
+        cell.style.setProperty('--row-index',row);
+        const icon=document.createElement('span'); icon.className='slot-symbol'; icon.textContent=meta?.icons[symbol]||'✦';
+        cell.appendChild(icon);
+        cell.setAttribute('aria-label', `Барабан ${reel+1}, ряд ${row+1}: ${meta?.labels[symbol] || symbol}`);
+        column.appendChild(cell);
+      }
+      node.appendChild(column);
+    }
+  }
+  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  function randomCosmeticSymbol() {
+    const symbols=Object.keys(SLOT_UI[activeSlotId]?.icons||{});
+    return symbols[Math.floor(Math.random()*symbols.length)]||'wild';
+  }
+  function tickCosmeticReels() {
+    const meta=SLOT_UI[activeSlotId];
+    document.querySelectorAll('#slotReels .reel-column').forEach(column=>{
+      column.querySelectorAll('.slot-cell').forEach(cell=>{
+        const symbol=randomCosmeticSymbol();
+        cell.querySelector('.slot-symbol').textContent=meta?.icons[symbol]||'✦';
+        cell.classList.toggle('is-premium',['wild','trophy','whistle','scarab'].includes(symbol));
+      });
+    });
+  }
+  async function stopCosmeticReels(grid) {
+    const columns=Array.from(document.querySelectorAll('#slotReels .reel-column'));
+    const meta=SLOT_UI[activeSlotId];
+    for (let reel=0; reel<columns.length; reel++) {
+      const column=columns[reel];
+      column.classList.remove('is-rolling'); column.classList.add('is-stopping');
+      column.querySelectorAll('.slot-cell').forEach((cell,row)=>{
+        const symbol=grid?.[reel]?.[row]||'wild';
+        cell.querySelector('.slot-symbol').textContent=meta?.icons[symbol]||'✦';
+      });
+      const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      await sleep(reduced?0:(document.documentElement.classList.contains('low-bandwidth')?95:125));
+    }
+  }
+  function renderPaytable(meta) {
+    const node=$('slotPaytable'); node.replaceChildren();
+    for (const [symbol,values] of meta.pays) {
+      const chip=document.createElement('span'); chip.className='pay-chip';
+      const strong=document.createElement('b'); strong.textContent=symbol;
+      chip.append(strong,document.createTextNode(` · 3 / 4 / 5 подряд: ${values}`)); node.appendChild(chip);
+    }
+    const note=document.createElement('span'); note.className='pay-chip';
+    note.textContent='Множители указаны к ставке на одну из 5 линий'; node.appendChild(note);
+  }
+  function chooseSlot(gameId) {
+    const meta=SLOT_UI[gameId]; if (!meta) return;
+    activeSlotId=gameId; pendingSlotSpin=null;
+    $('slotPicker').classList.add('hidden'); $('slotGame').classList.remove('hidden');
+    $('slotTitle').textContent=meta.title;
+    $('slotFeatureTitle').textContent=meta.featureTitle;
+    $('slotFeatureText').textContent=meta.featureText;
+    const savanna=gameId==='sandstorm';
+    $('slotHero').classList.toggle('jungle',!savanna);
+    $('slotHero').classList.toggle('savanna',savanna);
+    $('slotHeroImage').classList.toggle('hidden',savanna);
+    $('slotHeroSymbol').classList.toggle('hidden',!savanna);
+    $('slotEyebrow').textContent=savanna?'NIGERIA SAVANNA · DEMO':'JUNGLE PENALTY · DEMO';
+    renderPaytable(meta); renderSlotGrid(meta.sample);
+    showSlotMessage('Выберите ставку и вращайте барабаны. Результат определяет сервер.');
+    $('slotBet').focus({preventScroll:true});
+  }
+  function makeSpinId() {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    const bytes=new Uint8Array(16); window.crypto.getRandomValues(bytes);
+    bytes[6]=(bytes[6]&15)|64; bytes[8]=(bytes[8]&63)|128;
+    const hex=Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  }
+  let audioCtx=null, masterGain=null, effectsGain=null;
+  let soundOn=true, masterLevel=.62, fxLevel=.78;
+  try {
+    const saved=JSON.parse(localStorage.getItem('nairaAudio')||'null');
+    if (saved) { soundOn=saved.on!==false; masterLevel=Math.max(0,Math.min(1,Number(saved.master??.62))); fxLevel=Math.max(0,Math.min(1,Number(saved.fx??.78))); }
+  } catch (_) {}
+  function persistAudio() {
+    try { localStorage.setItem('nairaAudio',JSON.stringify({on:soundOn,master:masterLevel,fx:fxLevel})); } catch (_) {}
+  }
+  function syncMixerUi() {
+    $('soundToggle').setAttribute('aria-pressed',String(soundOn));
+    $('soundToggle').textContent=soundOn?'🔊 Звук включён':'🔇 Звук выключен';
+    $('masterVolume').value=String(Math.round(masterLevel*100)); $('fxVolume').value=String(Math.round(fxLevel*100));
+    if (masterGain) masterGain.gain.setTargetAtTime(soundOn?masterLevel:0,audioCtx.currentTime,.025);
+    if (effectsGain) effectsGain.gain.setTargetAtTime(fxLevel,audioCtx.currentTime,.025);
+    persistAudio();
+  }
+  function ensureAudio() {
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if (!Ctx || !soundOn || masterLevel<=0 || fxLevel<=0) return null;
+    try {
+      if (!audioCtx) {
+        audioCtx=new Ctx(); masterGain=audioCtx.createGain(); effectsGain=audioCtx.createGain();
+        effectsGain.connect(masterGain); masterGain.connect(audioCtx.destination); syncMixerUi();
+      }
+      if (audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+      return audioCtx;
+    } catch (_) { return null; }
+  }
+  function playNote(freq,delay=0,duration=.18,wave='sine',peak=.16,slide=0) {
+    const ctx=ensureAudio(); if (!ctx || !effectsGain) return;
+    const osc=ctx.createOscillator(), gain=ctx.createGain(), filter=ctx.createBiquadFilter();
+    const at=ctx.currentTime+delay;
+    osc.type=wave; osc.frequency.setValueAtTime(Math.max(45,freq),at);
+    if (slide) osc.frequency.exponentialRampToValueAtTime(Math.max(45,freq*slide),at+duration*.88);
+    filter.type='lowpass';filter.frequency.setValueAtTime(wave==='sine'?4200:2600,at);
+    gain.gain.setValueAtTime(.0001,at);gain.gain.linearRampToValueAtTime(peak,at+.012);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+    osc.connect(filter);filter.connect(gain);gain.connect(effectsGain);osc.start(at);osc.stop(at+duration+.02);
+    osc.onended=()=>{osc.disconnect();filter.disconnect();gain.disconnect();};
+  }
+  function playSoftNoise(delay=0,duration=.16,cutoff=1200,peak=.055) {
+    const ctx=ensureAudio(); if (!ctx || !effectsGain) return;
+    const frames=Math.max(256,Math.floor(ctx.sampleRate*duration));
+    const buffer=ctx.createBuffer(1,frames,ctx.sampleRate), data=buffer.getChannelData(0);
+    for (let i=0;i<frames;i++) data[i]=(Math.random()*2-1)*(1-i/frames);
+    const source=ctx.createBufferSource(), filter=ctx.createBiquadFilter(), gain=ctx.createGain(), at=ctx.currentTime+delay;
+    source.buffer=buffer; filter.type='lowpass'; filter.frequency.setValueAtTime(cutoff,at);
+    gain.gain.setValueAtTime(.0001,at);gain.gain.linearRampToValueAtTime(peak,at+.018);gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+    source.connect(filter);filter.connect(gain);gain.connect(effectsGain);source.start(at);source.stop(at+duration+.02);
+    source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect();};
+  }
+  function playMatchSound(symbol,count) {
+    if (!soundOn || masterLevel===0 || fxLevel===0) return;
+    const notes={
+      shell:[392,523,659],camel:[247,294,370],palm:[330,392,494],lamp:[440,554,659],scarab:[784,988,1318],wild:[587,784,988],
+      ball:[330,392,494],glove:[262,330,392],boot:[294,370,440],whistle:[698,880,1175],trophy:[523,659,784]
+    };
+    const seq=notes[symbol]||[392,494,587], n=Math.max(3,Math.min(5,count||3));
+    const pitchFactor=count>=5?1.16:count===4?1.08:1;
+    // The motif rises with 3/4/5 matches; quiet timbral accents hint at each icon.
+    for (let i=0;i<n;i++) playNote(seq[i%seq.length]*pitchFactor,i*.075,count>=5?.23:.19,symbol==='camel'?'triangle':'sine',.12+i*.012,symbol==='camel'?1.14:1.04);
+    if (count>=4) playNote(seq[0]*.5,.04,.24,'triangle',.09,.72);
+    if (symbol==='shell') playSoftNoise(.015,.22,850,.04);
+    if (symbol==='palm') playSoftNoise(.02,.2,2100,.035);
+    if (symbol==='scarab') playNote(420,.0,.22,'sawtooth',.035,2.2);
+    if (symbol==='ball'||symbol==='boot') playNote(115,.0,.11,'triangle',.06,.55);
+  }
+  function playFeatureSound(type) {
+    if (!soundOn || masterLevel===0 || fxLevel===0) return;
+    if (type==='penalty-shootout') { playNote(150,.0,.24,'triangle',.18,.64); playNote(880,.19,.28,'sine',.12,1.15); }
+    else if (type==='sandstorm-wild') { playNote(392,.0,.22,'triangle',.12,.7);playNote(659,.12,.2,'sine',.10,1.22);playNote(988,.24,.24,'sine',.11,1.05); }
+  }
+  $('soundToggle').addEventListener('click',()=>{soundOn=!soundOn;syncMixerUi();if(soundOn)ensureAudio();});
+  $('masterVolume').addEventListener('input',e=>{masterLevel=Number(e.target.value)/100;syncMixerUi();});
+  $('fxVolume').addEventListener('input',e=>{fxLevel=Number(e.target.value)/100;syncMixerUi();});
+  syncMixerUi();
+
+  async function spinSlot() {
+    if (!activeSlotId || $('slotSpinBtn').disabled) return;
+    const betAmount=Number($('slotBet').value);
+    if (!Number.isSafeInteger(betAmount) || betAmount<5 || betAmount>500 || betAmount%5!==0) {
+      showSlotMessage('Ставка: от 5 до 500 ₦ с шагом 5.', 'error'); return;
+    }
+    const fingerprint=`${activeSlotId}:${betAmount}`;
+    if (!pendingSlotSpin || pendingSlotSpin.fingerprint!==fingerprint) pendingSlotSpin={fingerprint,spinId:makeSpinId()};
+    const spinRequest=pendingSlotSpin;
+    const button=$('slotSpinBtn'), reels=$('slotReels');
+    ensureAudio();
+    button.disabled=true; $('slotBackBtn').disabled=true; button.innerHTML='ВРАЩАЕМ <span>↻</span>'; reels.classList.remove('has-win'); reels.classList.add('is-spinning');
+    reels.querySelectorAll('.slot-cell').forEach(cell=>cell.classList.remove('is-winning','is-feature'));
+    reels.querySelectorAll('.reel-column').forEach(col=>col.classList.add('is-rolling'));
+    showSlotMessage('Барабаны вращаются…');
+    const started=performance.now();
+    const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const visualTimer=setInterval(tickCosmeticReels,reducedMotion?480:(document.documentElement.classList.contains('low-bandwidth')?230:105));
+    try {
+      const response=await api('/api/slots/spin',{method:'POST',body:JSON.stringify({game:activeSlotId,betAmount,spinId:spinRequest.spinId})});
+      const remaining=Math.max(0,920-(performance.now()-started));
+      if (remaining) await sleep(remaining);
+      clearInterval(visualTimer);
+      await stopCosmeticReels(response.grid);
+      reels.classList.remove('is-spinning');
+      renderSlotGrid(response.grid,response.lineWins,response.feature);
+      if (response.payout>0) { reels.classList.add('has-win'); setTimeout(()=>reels.classList.remove('has-win'),1500); }
+      const bestMatch=(response.lineWins||[]).slice().sort((a,b)=>(b.count-a.count)||(b.payout-a.payout))[0];
+      if (bestMatch) playMatchSound(bestMatch.symbol,bestMatch.count);
+      if (response.feature) playFeatureSound(response.feature.type);
+      $('topBalance').textContent=format(response.balance); $('cabBalance').textContent=`${format(response.balance)} ₦`;
+      if (response.feature?.type==='penalty-shootout') {
+        const goals=response.feature.kicks.filter(kick=>kick.goal).length;
+        showSlotMessage(`Серия пенальти: ${goals} из 3 забито · бонус ${format(response.feature.bonusPayout)} ₦`,'win');
+      } else if (response.feature?.type==='sandstorm-wild') {
+        showSlotMessage(`Песчаная буря! Барабан ${response.feature.reel+1} стал Wild.`,'win');
+      } else if (response.payout>0) showSlotMessage(`Выигрыш: ${format(response.payout)} ₦ · линии подсвечены`,'win');
+      else showSlotMessage('В этот раз без совпадений. Попробуйте другую демо-ставку.');
+      pendingSlotSpin=null; loadCabinet();
+    } catch (error) {
+      clearInterval(visualTimer);
+      reels.classList.remove('is-spinning');
+      reels.querySelectorAll('.reel-column').forEach(col=>col.classList.remove('is-rolling','is-stopping'));
+      showSlotMessage(error.message,'error');
+    } finally {
+      button.disabled=false; $('slotBackBtn').disabled=false; button.innerHTML='КРУТИТЬ <span>↻</span>';
+    }
+  }
+  applyTheme(savedTheme); $('themeToggle').addEventListener('click',()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+  $('crashTab').addEventListener('click',()=>{if($('slotSpinBtn').disabled)return;setActiveGameTab('crash');});
+  $('slotsTab').addEventListener('click',()=>{
+    if (gameState==='IN_GAME' && hasBetInRound) { showSlotMessage('Сначала завершите активный Crash-раунд.'); return; }
+    setActiveGameTab('slots');
+  });
+  document.querySelectorAll('.slot-card').forEach(card=>card.addEventListener('click',()=>chooseSlot(card.dataset.slot)));
+  $('slotBackBtn').addEventListener('click',()=>{pendingSlotSpin=null;$('slotGame').classList.add('hidden');$('slotPicker').classList.remove('hidden');});
+  document.querySelectorAll('.bet-chips button').forEach(chip=>chip.addEventListener('click',()=>{$('slotBet').value=chip.dataset.bet;}));
+  $('slotSpinBtn').addEventListener('click',spinSlot);
+
+  $('authForm').addEventListener('submit', async e => {
+    e.preventDefault(); authEpoch += 1; $('authSubmit').disabled = true; $('authMessage').textContent = 'Проверяем данные…';
+    try {
+      const payload = { email: $('emailInput').value.trim(), password: $('passwordInput').value };
+      if (authMode === 'register') payload.referralCode = $('refInput').value.trim();
+      const result = await api(`/api/auth/${authMode === 'login' ? 'login' : 'register'}`, { method:'POST', body:JSON.stringify(payload) });
+      if (!result.token) throw new Error('Сервер не выдал токен сессии. Обновите страницу и попробуйте снова.');
+      saveSessionToken(result.token); currentUser = result.user; showApp();
+    } catch (err) { $('authMessage').textContent = err.message; }
+    finally { $('authSubmit').disabled = false; }
+  });
+  async function restoreSession() {
+    const epochAtStart = authEpoch;
+    const tokenAtStart = sessionToken;
+    try {
+      const data = await api('/api/me', { silent401: true });
+      if (epochAtStart !== authEpoch) return; // Ignore stale restore responses after a login attempt.
+      currentUser = data.user; showApp();
+    } catch (_) {
+      if (epochAtStart !== authEpoch) return; // Never let an old 401 clear a freshly issued token.
+      if (sessionToken === tokenAtStart && sessionToken) saveSessionToken('');
+      $('authScreen').classList.remove('hidden');
+      $('authMessage').textContent = ''; // unauthenticated first visit is normal, not a login error
+    }
+  }
+  $('logoutBtn').addEventListener('click', async () => {
+    socket.disconnect(); await api('/api/auth/logout', {method:'POST'}).catch(()=>{});
+    saveSessionToken(''); currentUser = null; $('appScreen').classList.add('hidden'); $('userBar').classList.add('hidden'); $('authScreen').classList.remove('hidden');
+  });
+  async function loadCabinet() {
+    try {
+      const data = await api('/api/me'); const u = data.user; currentUser = u;
+      $('whoami').textContent = u.username || u.email; $('roleTag').textContent = u.role === 'creator' ? 'CREATOR' : 'PLAYER';
+      $('roleTag').className = `small ${u.role === 'creator' ? 'creator' : ''}`;
+      $('topBalance').textContent = format(u.balance); $('cabBalance').textContent = `${format(u.balance)} ₦`;
+      $('totalBets').textContent = Number(u.stats?.totalBets || 0).toLocaleString('ru-RU');
+      $('totalWagered').textContent = `${format(u.stats?.totalWagered)} ₦`;
+      $('totalWins').textContent = Number(u.stats?.totalWins || 0).toLocaleString('ru-RU');
+      $('totalWon').textContent = `${format(u.stats?.totalWon)} ₦`;
+      $('refCodeDisplay').value = u.referralCode || '';
+      $('refLinkDisplay').value = u.referralLink || '';
+      $('referralsCount').textContent = u.referralsCount || 0; $('refEarnings').textContent = `${format(u.referralEarnings)} ₦`;
+      $('creatorApply').disabled = u.role === 'creator' || u.creatorStatus === 'approved' || u.creatorStatus === 'pending';
+      $('creatorApply').textContent = u.role === 'creator' || u.creatorStatus === 'approved' ? 'Статус: контент-мейкер' : u.creatorStatus === 'pending' ? 'Заявка на проверке' : 'Подать заявку контент-мейкера';
+      $('creatorMessage').textContent = u.creatorStatus === 'pending' ? 'Заявка ожидает ручной проверки.' : u.role === 'creator' ? 'Creator-статус активен.' : '';
+      const today = new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+      const claimed = u.lastDailyClaimDay === today;
+      $('dailyBtn').disabled = claimed; $('dailyBtn').classList.toggle('done', claimed);
+      $('dailyBtn').textContent = claimed ? 'Уже получен сегодня' : 'Забрать бонус';
+      $('dailyMessage').textContent = `Текущая серия: ${u.dailyBonusStreak || 0} / 7 дней · новый день по времени Lagos (WAT).`;
+      $('transactions').replaceChildren();
+      if (!data.transactions.length) $('transactions').innerHTML = '<span class="small">Операций пока нет.</span>';
+      for (const tx of data.transactions) {
+        const row = document.createElement('div'); row.className = 'tx';
+        const left = document.createElement('span'); left.textContent = `${tx.description || tx.type} · ${new Date(tx.createdAt).toLocaleDateString('ru-RU')}`;
+        const debit = tx.type === 'bet' || tx.type === 'withdraw';
+        const right = document.createElement('b'); right.className='tx-amount'; right.style.color = debit ? 'var(--red)' : 'var(--green)'; right.textContent = `${debit ? '−' : '+'}${format(tx.amount)} ₦`;
+        row.append(left,right); $('transactions').appendChild(row);
+      }
+    } catch (err) { console.error(err); }
+  }
+  $('creatorApply').addEventListener('click', async () => {
+    $('creatorApply').disabled = true; $('creatorMessage').textContent = 'Отправляем заявку…';
+    try { const d = await api('/api/creator/apply',{method:'POST',body:'{}'}); $('creatorMessage').textContent = d.message || 'Заявка отправлена.'; await loadCabinet(); }
+    catch (e) { $('creatorMessage').textContent = e.message; await loadCabinet(); }
+  });
+  $('dailyBtn').addEventListener('click', async () => {
+    $('dailyBtn').disabled = true; $('dailyMessage').textContent = 'Начисляем…';
+    try { const d = await api('/api/bonus/daily/claim',{method:'POST',body:'{}'}); $('dailyMessage').textContent = `Получено ${format(d.amount)} ₦. Серия: ${d.streak}/7.`; await loadCabinet(); }
+    catch (e) { $('dailyMessage').textContent = e.message; await loadCabinet(); }
+  });
+  async function copy(value, button) {
+    try { await navigator.clipboard.writeText(value); button.textContent = 'Готово'; setTimeout(()=>button.textContent='Копировать',1200); }
+    catch (_) { const input = button.previousElementSibling; input.select(); document.execCommand('copy'); button.textContent='Готово'; setTimeout(()=>button.textContent='Копировать',1200); }
+  }
+  $('copyCodeBtn').addEventListener('click', e => copy($('refCodeDisplay').value,e.currentTarget));
+  $('copyLinkBtn').addEventListener('click', e => copy($('refLinkDisplay').value,e.currentTarget));
+  $('promoBtn').addEventListener('click', async () => {
+    const button=$('promoBtn'); button.disabled=true; $('promoMessage').textContent='Проверяем код…';
+    try { const d=await api('/api/promo/activate',{method:'POST',body:JSON.stringify({promoCode:$('promoInput').value.trim()})}); $('promoMessage').textContent=d.message; $('promoInput').value=''; await loadCabinet(); }
+    catch(e){ $('promoMessage').textContent=e.message; } finally{button.disabled=false;}
+  });
+
+  function addFeed(text, color='') { const row=document.createElement('div'); row.textContent=text; if(color) row.style.color=color; $('feed').appendChild(row); $('feed').scrollTop=$('feed').scrollHeight; while($('feed').children.length>60) $('feed').firstChild.remove(); }
+  function waitingTimer(seconds) { clearInterval(countdown); let left=Number(seconds)||10; $('gameStatus').textContent=`Приём ставок · ${left} сек`; countdown=setInterval(()=>{left--; $('gameStatus').textContent=left>0?`Приём ставок · ${left} сек`:'Запуск…'; if(left<=0) clearInterval(countdown);},1000); }
+  socket.on('connect',()=>{$('socketState').textContent='В эфире';$('socketState').style.color='var(--green)';});
+  socket.on('disconnect',()=>{$('socketState').textContent='Переподключение…';$('socketState').style.color='var(--muted)';$('actionBtn').disabled=true;});
+  socket.on('connect_error',err=>{console.warn('Socket.IO error:',err.message);if(/вход|сессия/i.test(err.message)){showLogin('Сессия для игры не найдена. Войдите снова.');}else{$('socketState').textContent='Нет соединения';}});
+  socket.on('game_status',d=>{ gameState=d.gameState; if(gameState==='IN_GAME'){setRunnerMode('running');$('gameStatus').textContent='ГРАФИК РАСТЁТ';$('multiplier').textContent=`${Number(d.currentMultiplier||1).toFixed(2)}x`;$('actionBtn').disabled=true;$('actionBtn').textContent='Раунд уже идёт';} else if(gameState==='crashed'){setRunnerMode('crashed');$('gameStatus').textContent='ВЗРЫВ!';$('actionBtn').disabled=true;$('actionBtn').textContent='Новый раунд скоро';} else {setRunnerMode('waiting');$('gameStatus').textContent='Приём ставок открыт';$('actionBtn').disabled=false;$('actionBtn').textContent='Сделать ставку';} });
+  socket.on('crash_waiting',d=>{gameState='waiting';setRunnerMode('waiting');setRunnerMood('effort');hasBetInRound=false;$('multiplier').classList.remove('crashed');$('multiplier').textContent='VS';waitingTimer(d.timeToStart);$('actionBtn').className='bet';$('actionBtn').textContent='Сделать ставку';$('actionBtn').disabled=false;});
+  socket.on('crash_start',()=>{clearInterval(countdown);gameState='IN_GAME';setRunnerMode('running');setRunnerMood('effort');$('gameStatus').textContent='ГРАФИК РАСТЁТ';$('multiplier').classList.remove('crashed');$('multiplier').textContent='1.00x';$('actionBtn').disabled=!hasBetInRound;$('actionBtn').className=hasBetInRound?'cashout':'disabled-look';$('actionBtn').textContent=hasBetInRound?'ЗАБРАТЬ ВЫИГРЫШ':'Раунд идёт';});
+  socket.on('crash_tick',d=>{$('multiplier').textContent=`${Number(d.multiplier).toFixed(2)}x`;});
+  socket.on('crash_crashed',d=>{clearInterval(countdown);const playerMissedCashout=hasBetInRound;gameState='crashed';setRunnerMode('crashed');if(playerMissedCashout)setRunnerMood('sad',2600);else if(Date.now()-lastCashoutAt>2500)setRunnerMood('effort');hasBetInRound=false;$('gameStatus').textContent='ВЗРЫВ!';$('multiplier').textContent=`${Number(d.crashPoint).toFixed(2)}x`;$('multiplier').classList.add('crashed');$('actionBtn').disabled=true;$('actionBtn').textContent='Раунд завершён';loadCabinet();});
+  $('actionBtn').addEventListener('click',()=>{const bet=Number($('betAmount').value);if(gameState==='waiting'&&!hasBetInRound){if(!Number.isFinite(bet)||bet<=0){alert('Введите корректную ставку');return;} $('actionBtn').disabled=true;socket.emit('place_bet',{betAmount:bet});}else if(gameState==='IN_GAME'&&hasBetInRound){$('actionBtn').disabled=true;socket.emit('cashout',{});}});
+  socket.on('bet_accepted',d=>{setRunnerMood('effort');hasBetInRound=true;$('actionBtn').disabled=true;$('actionBtn').textContent='Ставка принята';$('topBalance').textContent=format(d.newBalance);$('cabBalance').textContent=`${format(d.newBalance)} ₦`;loadCabinet();});
+  socket.on('cashout_success',d=>{lastCashoutAt=Date.now();setRunnerMood('happy',2600);hasBetInRound=false;$('actionBtn').disabled=true;$('actionBtn').textContent='Выигрыш забран';$('topBalance').textContent=format(d.newBalance);$('cabBalance').textContent=`${format(d.newBalance)} ₦`;loadCabinet();});
+  socket.on('game_error',d=>{alert(d.message||'Ошибка игры');$('actionBtn').disabled=!(gameState==='waiting'&&!hasBetInRound||gameState==='IN_GAME'&&hasBetInRound);});
+  socket.on('player_bet_placed',d=>addFeed(`📥 ${d.username||'Игрок'} поставил ${format(d.betAmount)} ₦`));
+  socket.on('player_cashed_out',d=>addFeed(`💰 ${d.username||'Игрок'} забрал на ${d.winMultiplier}x (+${format(d.winnings)} ₦)`,'var(--green)'));
+  restoreSession();
+})();
+</script>
+</body></html>

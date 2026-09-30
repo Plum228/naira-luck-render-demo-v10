@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: naira-luck-demo
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY_HOPS
+        value: "1"
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: naira_luck_demo
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENABLE_DEPOSITS
+        value: "false"
+      - key: ENABLE_SLOTS
+        value: "true"
+      - key: AUTH_DEBUG
+        value: "false"
+      - key: DAILY_BONUS_AMOUNTS
+        value: 50,75,100,150,200,300,500
+      - key: REFERRAL_INVITER_BONUS
+        value: "100"
+      - key: REFERRAL_NEW_USER_BONUS
+        value: "50"
