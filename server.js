@@ -107,7 +107,7 @@ function setAuthCookie(req, res, userId) {
   }
   return token;
 }
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const bearer = authHeader.match(/^Bearer\s+(.+)$/i)?.[1];
   const customToken = req.get('x-session-token');
@@ -120,6 +120,7 @@ function requireAuth(req, res, next) {
   }
   try {
     const payload = jwt.verify(token, JWT_SECRET);
+    if (!mongoose.Types.ObjectId.isValid(payload.sub) || !(await User.exists({ _id: payload.sub, emailVerifiedAt: { $type: 'date' } }))) return res.status(403).json({ error: 'Подтвердите адрес почты и войдите снова.' });
     req.userId = payload.sub;
     authDebug(`[auth] accepted: ${req.method} ${req.originalUrl}; via=${via}; build=${req.get('x-client-build') || 'unknown'}`);
     return next();
@@ -226,7 +227,7 @@ function startCrashEngine() {
 }
 
 // WebSocket использует ту же HttpOnly-сессию; identity нельзя подменить в payload.
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const cookie = socket.handshake.headers.cookie || '';
   const raw = cookie.split(';').map(v => v.trim()).find(v => v.startsWith('session='));
   const token = socket.handshake.auth?.token || (raw ? decodeURIComponent(raw.slice('session='.length)) : null);
@@ -236,6 +237,7 @@ io.use((socket, next) => {
   }
   try {
     const payload = jwt.verify(token, JWT_SECRET);
+    if (!mongoose.Types.ObjectId.isValid(payload.sub) || !(await User.exists({ _id: payload.sub, emailVerifiedAt: { $type: 'date' } }))) return next(new Error('Подтвердите адрес почты'));
     socket.userId = payload.sub;
     authDebug(`[socket-auth] accepted; authField=${Boolean(socket.handshake.auth?.token)} cookie=${Boolean(raw)}`);
     return next();
@@ -335,44 +337,15 @@ io.on('connection', (socket) => {
 // ==========================================
 // Регистрация, вход и личный кабинет
 // ==========================================
-app.post('/api/auth/register', authLimiter, async (req, res) => {
-  const email = String(req.body?.email || '').trim().toLowerCase();
-  const password = String(req.body?.password || '');
-  const requestedUsername = String(req.body?.username || '').trim().slice(0, 32);
-  const referralCode = String(req.body?.referralCode || '').trim().toUpperCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Введите корректный email' });
-  if (password.length < 10 || password.length > 128) return res.status(400).json({ error: 'Пароль должен содержать от 10 до 128 символов' });
-  let referrer = null;
-  try {
-    if (await User.exists({ email })) return res.status(409).json({ error: 'Аккаунт с таким email уже существует' });
-    if (referralCode) {
-      referrer = await User.findOne({ referralCode }).select('_id');
-      if (!referrer) return res.status(400).json({ error: 'Реферальный код не найден' });
-    }
-    const safeName = requestedUsername || email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 20) || 'player';
-    const user = await User.create({
-      email,
-      username: `${safeName}_${crypto.randomBytes(2).toString('hex')}`,
-      passwordHash: await bcrypt.hash(password, 12),
-      referralCode: createReferralCode(),
-      referredBy: referrer?._id || null
-    });
-    if (referrer) await User.updateOne({ _id: referrer._id }, { $inc: { referralsCount: 1 } });
-    const token = setAuthCookie(req, res, user._id);
-    return res.status(201).json({ success: true, token, user: { id: user._id, email: user.email, username: user.username } });
-  } catch (err) {
-    if (err.code === 11000) return res.status(409).json({ error: 'Email или имя уже заняты' });
-    console.error('Registration error:', err.message);
-    return res.status(500).json({ error: 'Не удалось создать аккаунт' });
-  }
-});
+require('./routes/registrationRoutes')(app, authLimiter, createReferralCode);
+require('./routes/legacyEmailRoutes')(app, authLimiter);
 
 app.post('/api/auth/login', authLimiter, async (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const password = String(req.body?.password || '');
   try {
     const user = await User.findOne({ email }).select('+passwordHash');
-    if (!user || !user.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
+    if (!user || !user.passwordHash || !user.emailVerifiedAt || !(await bcrypt.compare(password, user.passwordHash))) {
       authDebug('[auth-login] rejected credentials');
       return res.status(401).json({ error: 'Неверный email или пароль' });
     }
