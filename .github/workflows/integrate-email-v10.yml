@@ -1,0 +1,34 @@
+name: Integrate v10 email verification
+on:
+  push:
+    branches: [feature/email-verification]
+    paths:
+      - .github/workflows/integrate-email-v10.yml
+      - scripts/integrate-email-v10.js
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate original v10 and integration
+        run: node scripts/integrate-email-v10.js
+      - name: Apply integration and check syntax
+        run: |
+          node scripts/integrate-email-v10.js --write
+          node --check server.js
+          git diff --check
+      - name: Commit only integrated files to feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add server.js public/auth-fix-v9.html
+          git diff --cached --quiet && exit 1
+          git commit -m 'Integrate email verification into v10 server and UI'
+          git push origin HEAD:feature/email-verification

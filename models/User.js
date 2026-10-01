@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
   passwordHash: { type: String, select: false },
+  emailVerifiedAt: { type: Date, default: null },
   username: { type: String, unique: true, sparse: true, trim: true },
   balance: { type: Number, default: 0, min: 0 },
   walletAddress: { type: String, trim: true, default: '' },
